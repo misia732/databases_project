@@ -14,19 +14,19 @@ While some of you may have already worked on a controller for a similar system d
 
 The first critical feature of the system is the ability to present a comprehensive and dynamic menu to customers. This menu will include:
 
-Pizza Listings: A list of all available pizzas at the restaurant, each with detailed information.
-Ingredients: Display all ingredients used in each pizza.
-Price Calculation: Show the price of each pizza, calculated based on the sum of its ingredient costs, a 40% profit margin, and the inclusion of a 9% VAT.
-Dietary Information: Indicate whether each pizza is vegetarian or vegan based on its ingredients.
-Additional Items: The menu should also list drinks and desserts.
-The menu must include at least 10 distinct pizzas, featuring at least 10 different ingredients, along with 4 drinks and 2 desserts.
-This menu is the first point of interaction between the customer and the system, so it must be user-friendly and informative. Additionally, it should demonstrate the software’s ability to dynamically calculate and present pricing based on the ingredients and other factors.
+Pizza Listings: A list of all available pizzas at the restaurant, each with detailed information. <br />
+Ingredients: Display all ingredients used in each pizza. <br />
+Price Calculation: Show the price of each pizza, calculated based on the sum of its ingredient costs, a 40% profit margin, and the inclusion of a 9% VAT. <br />
+Dietary Information: Indicate whether each pizza is vegetarian or vegan based on its ingredients. <br />
+Additional Items: The menu should also list drinks and desserts. <br />
+The menu must include at least 10 distinct pizzas, featuring at least 10 different ingredients, along with 4 drinks and 2 desserts. <br />
+This menu is the first point of interaction between the customer and the system, so it must be user-friendly and informative. Additionally, it should demonstrate the software’s ability to dynamically calculate and present pricing based on the ingredients and other factors. <br />
 
 ### Order Processing
 The system must also manage the complete process of taking and processing orders, including:
 
-Order Placement: Allow customers to place orders for pizzas, drinks, and desserts. Each order must include at least one pizza.
-Customer Information Management: Store essential customer information such as name, gender, birthdate, phone number, and address. This information is crucial for order confirmation and delivery.
+Order Placement: Allow customers to place orders for pizzas, drinks, and desserts. Each order must include at least one pizza. <br />
+Customer Information Management: Store essential customer information such as name, gender, birthdate, phone number, and address. This information is crucial for order confirmation and delivery. <br />
 Customer Accounts and Discounts:
 Implement a simple login system for customers, which does not need to be highly secure.
 Track the number of pizzas each customer has ordered. After 10 pizzas, customers should automatically receive a 10% discount on their next order.
@@ -39,17 +39,17 @@ Earnings Report: Generate a monthly earnings report for the restaurant, with fil
 ### Order Delivery
 Delivery management is another crucial component, involving:
 
-Delivery Status: Allow customers to check the current status of their order (e.g., being prepared, in process, out for delivery) and estimated delivery time.
-Order Cancellation: Customers should be able to cancel their order within 5 minutes of placing it.
-Delivery Personnel Management:
-The restaurant employs several delivery persons, each assigned to a specific postal code area.
-A delivery person can only deliver within their assigned area. Multiple delivery persons can be assigned to the same postal code if needed.
-Once a delivery is initiated, the delivery person is unavailable for further deliveries for 30 minutes.
-The system must handle the delivery timing logic, including the ability to group multiple orders for the same postal code into a single delivery if they occur within the 5-minute window.
+- Delivery Status: Allow customers to check the current status of their order (e.g., being prepared, in process, out for delivery) and estimated delivery time. <br />
+- Order Cancellation: Customers should be able to cancel their order within 5 minutes of placing it. <br />
+- Delivery Personnel Management:
+  - The restaurant employs several delivery persons, each assigned to a specific postal code area. <br />
+  - A delivery person can only deliver within their assigned area. Multiple delivery persons can be assigned to the same postal code if needed. <br />
+  - Once a delivery is initiated, the delivery person is unavailable for further deliveries for 30 minutes. <br />
+  - The system must handle the delivery timing logic, including the ability to group multiple orders for the same postal code into a single delivery if they occur within the 5-minute window. <br />
 The basic delivery system described above meets the minimum requirements. However, the system is open to enhancements for those who wish to implement more efficient or advanced delivery logic, such as optimizing routes or managing delivery queues more effectively.
 
 
 ## Project Members
 
-Student ID: i6326675
+Student ID: i6326675 <br />
 Student ID: 
