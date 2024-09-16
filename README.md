@@ -14,27 +14,27 @@ While some of you may have already worked on a controller for a similar system d
 
 The first critical feature of the system is the ability to present a comprehensive and dynamic menu to customers. This menu will include:
 
-Pizza Listings: A list of all available pizzas at the restaurant, each with detailed information. <br />
-Ingredients: Display all ingredients used in each pizza. <br />
-Price Calculation: Show the price of each pizza, calculated based on the sum of its ingredient costs, a 40% profit margin, and the inclusion of a 9% VAT. <br />
-Dietary Information: Indicate whether each pizza is vegetarian or vegan based on its ingredients. <br />
-Additional Items: The menu should also list drinks and desserts. <br />
-The menu must include at least 10 distinct pizzas, featuring at least 10 different ingredients, along with 4 drinks and 2 desserts. <br />
+- Pizza Listings: A list of all available pizzas at the restaurant, each with detailed information. <br />
+  - Ingredients: Display all ingredients used in each pizza. <br />
+  - Price Calculation: Show the price of each pizza, calculated based on the sum of its ingredient costs, a 40% profit margin, and the inclusion of a 9% VAT. <br />
+  - Dietary Information: Indicate whether each pizza is vegetarian or vegan based on its ingredients. <br />
+- Additional Items: The menu should also list drinks and desserts. <br />
+  - The menu must include at least 10 distinct pizzas, featuring at least 10 different ingredients, along with 4 drinks and 2 desserts. <br />
 This menu is the first point of interaction between the customer and the system, so it must be user-friendly and informative. Additionally, it should demonstrate the software’s ability to dynamically calculate and present pricing based on the ingredients and other factors. <br />
 
 ### Order Processing
 The system must also manage the complete process of taking and processing orders, including:
 
-Order Placement: Allow customers to place orders for pizzas, drinks, and desserts. Each order must include at least one pizza. <br />
-Customer Information Management: Store essential customer information such as name, gender, birthdate, phone number, and address. This information is crucial for order confirmation and delivery. <br />
-Customer Accounts and Discounts:
-Implement a simple login system for customers, which does not need to be highly secure.
-Track the number of pizzas each customer has ordered. After 10 pizzas, customers should automatically receive a 10% discount on their next order.
-Customers can also receive and redeem a discount code, which must be validated during the order process. The code can only be used once.
-Offer customers a free pizza and drink on their birthday, requiring the system to check the date and apply the appropriate offer.
-Order Confirmation: Upon placing an order, customers should receive a confirmation with details of their order and an estimated delivery time.
-Restaurant Monitoring: Provide a real-time display for the restaurant staff, showing a list of pizzas that have been ordered but not yet dispatched for delivery.
-Earnings Report: Generate a monthly earnings report for the restaurant, with filtering options based on region (postal code or city), customer gender, and age.
+- Order Placement: Allow customers to place orders for pizzas, drinks, and desserts. Each order must include at least one pizza. <br />
+- Customer Information Management: Store essential customer information such as name, gender, birthdate, phone number, and address. This information is crucial for order confirmation and delivery. <br />
+- Customer Accounts and Discounts:
+  - Implement a simple login system for customers, which does not need to be highly secure.
+  - Track the number of pizzas each customer has ordered. After 10 pizzas, customers should automatically receive a 10% discount on their next order.
+  - Customers can also receive and redeem a discount code, which must be validated during the order process. The code can only be used once.
+  - Offer customers a free pizza and drink on their birthday, requiring the system to check the date and apply the appropriate offer.
+- Order Confirmation: Upon placing an order, customers should receive a confirmation with details of their order and an estimated delivery time.
+- Restaurant Monitoring: Provide a real-time display for the restaurant staff, showing a list of pizzas that have been ordered but not yet dispatched for delivery.
+- Earnings Report: Generate a monthly earnings report for the restaurant, with filtering options based on region (postal code or city), customer gender, and age.
 
 ### Order Delivery
 Delivery management is another crucial component, involving:
