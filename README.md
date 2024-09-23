@@ -1,5 +1,8 @@
 # databases_project
 
+### copy-paste for mysql localhost
+%sql postgresql://root:pieseczek71@localhost/restaurant_db
+
 ## Project Description
 
 In response to recent EU regulations that have banned centralized take-away ordering services for pizza restaurants, each restaurant in Europe is now required to operate its own independent pizza ordering system. This project aims to develop a comprehensive software solution for a pizza restaurant, enabling it to manage its own ordering, processing, and delivery operations effectively.

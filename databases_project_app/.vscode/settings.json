@@ -1,0 +1,9 @@
+{
+    "java.project.sourcePaths": [
+        "app/src/main/java/com/database_project"
+    ],
+    "java.project.outputPath": "bin",
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar"
+    ]
+}
