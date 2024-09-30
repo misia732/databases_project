@@ -1,12 +1,11 @@
-package com.database_project.Model;
+package com.database_project.entity;
 
 import java.sql.Date;
 
 public class Customer{
 
-    public Customer(int ID, String firstName, String lastName, char gender, Date birthDate, String phoneNumber,
+    public Customer(String firstName, String lastName, char gender, Date birthDate, String phoneNumber,
             String email, String adress, String postalcode, String city, int pizzaCount) {
-        this.ID = ID;
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
@@ -19,7 +18,6 @@ public class Customer{
         this.pizzaCount = pizzaCount;
     }
 
-    private int ID;
     private String firstName;
     private String lastName;
     private char gender;
@@ -30,13 +28,6 @@ public class Customer{
     private String postalcode;
     private String city;
     private int pizzaCount;
-
-    public void setID(int ID){
-        this.ID = ID;
-    }
-    public int getID() {
-        return ID;
-    }
 
     public void setFirstName(String firstName){
         this.firstName = firstName;
@@ -120,7 +111,7 @@ public class Customer{
 
     @Override
     public String toString() {
-        return "Customer [ID=" + ID + ", firstName=" + firstName + ", lastName=" + lastName + ", gender=" + gender
+        return "Customer [firstName=" + firstName + ", lastName=" + lastName + ", gender=" + gender
                 + ", birthDate=" + birthDate + ", phoneNumber=" + phoneNumber + ", email=" + email + ", adress="
                 + adress + ", postalcode=" + postalcode + ", city=" + city + ", pizzaCount=" + pizzaCount + "]";
     }
