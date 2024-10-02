@@ -1,13 +1,14 @@
 package com.database_project;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import com.database_project.DAO.CustomerDAO;
 import com.database_project.DAO.CustomerDAOImpl;
-import com.database_project.entity.Customer;
+import com.database_project.DAO.GeneralDAO;
+import com.database_project.DAO.GeneralDAOImpl;
+
 
 public class dbcTest{
     public static void main(String[] args) {
@@ -19,7 +20,7 @@ public class dbcTest{
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
         }
-        System.out.println("Connectin succesfull");
+        System.out.println("Connection succesfull");
 
         // execute query SHOW TABLES
         /*
@@ -40,16 +41,11 @@ public class dbcTest{
 
         // add customer
         final CustomerDAO customerDAO = new CustomerDAOImpl(conn);
-        Date birthDate = Date.valueOf("2005-12-31");
-        Customer customer1 = new Customer("Marta", "Adamowska", 'F', birthDate, "+00123456789", "marta@gmail.com", "Cinamon", "1234AB", "Maastricht", 0);
-        System.out.println("customer : " + customer1.toString() + " created");
-        customerDAO.insertCustomer(customer1);
-        System.out.println("customer : " + customer1.toString() + " inserted");
 
-        Date birthDate2 = Date.valueOf("2005-12-31");
-        Customer customer2 = new Customer("Marta", "Adamowska", 'F', birthDate, "+00123456789", "marta@gmail.com", "Cinamon", "1234AB", "Maastricht", 0);
+        
 
-        customerDAO.insertCustomer(customer2);
-        System.out.println("customer : " + customer2.toString() + " inserted");
+        final GeneralDAO generalDAO = new GeneralDAOImpl(conn);
+        generalDAO.delete("customer");
+
     }
 }

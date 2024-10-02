@@ -4,30 +4,39 @@ import java.sql.Date;
 
 public class Customer{
 
-    public Customer(String firstName, String lastName, char gender, Date birthDate, String phoneNumber,
-            String email, String adress, String postalcode, String city, int pizzaCount) {
+    public Customer(String firstName, String lastName, String gender, Date birthDate, String phoneNumber,
+            String email, String address, String postalcode, String city, int pizzaCount) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
         this.birthDate = birthDate;
         this.phoneNumber = phoneNumber;
         this.email = email;
-        this.adress = adress;
+        this.address = address;
         this.postalcode = postalcode;
         this.city = city;
         this.pizzaCount = pizzaCount;
     }
 
+    private int ID;
     private String firstName;
     private String lastName;
-    private char gender;
+    private String gender;
     private Date birthDate;
     private String phoneNumber;
-    private String email;
-    private String adress;
+    private String email;   // unique for every customer
+    private String address;
     private String postalcode;
     private String city;
     private int pizzaCount;
+
+    public int getID() {
+        return ID;
+    }
+
+    public void setID(int iD) {
+        ID = iD;
+    }
 
     public void setFirstName(String firstName){
         this.firstName = firstName;
@@ -45,11 +54,11 @@ public class Customer{
         this.lastName = lastName;
     }
 
-    public char getGender() {
+    public String getGender() {
         return gender;
     }
 
-    public void setGender(char gender) {
+    public void setGender(String gender) {
         this.gender = gender;
     }
 
@@ -77,12 +86,12 @@ public class Customer{
         this.email = email;
     }
 
-    public String getAdress() {
-        return adress;
+    public String getAddress() {
+        return address;
     }
 
-    public void setAdress(String adress) {
-        this.adress = adress;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getPostalcode() {
@@ -113,6 +122,6 @@ public class Customer{
     public String toString() {
         return "Customer [firstName=" + firstName + ", lastName=" + lastName + ", gender=" + gender
                 + ", birthDate=" + birthDate + ", phoneNumber=" + phoneNumber + ", email=" + email + ", adress="
-                + adress + ", postalcode=" + postalcode + ", city=" + city + ", pizzaCount=" + pizzaCount + "]";
+                + address + ", postalcode=" + postalcode + ", city=" + city + ", pizzaCount=" + pizzaCount + "]";
     }
 }
