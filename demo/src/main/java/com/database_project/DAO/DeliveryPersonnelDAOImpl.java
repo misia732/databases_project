@@ -6,31 +6,31 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import com.database_project.entity.DeliveryPersonel;
+import com.database_project.entity.DeliveryPersonnel;
 
-public class DeliveryPersonelDAOImpl implements DeliveryPersonelDAO {
+public class DeliveryPersonnelDAOImpl implements DeliveryPersonnelDAO {
 
     private Connection conn;
 
-    public DeliveryPersonelDAOImpl(Connection conn) {
+    public DeliveryPersonnelDAOImpl(Connection conn) {
         this.conn = conn;
     }
 
     @Override
-    public void insert(DeliveryPersonel deliveryPersonel) {
-        if (!deliveryPersonelExistsByID(deliveryPersonel.getID())) {
-            String query = "INSERT INTO delivery_personel (firstName, lastName, postalCode) VALUES (?, ?, ?)";
+    public void insert(DeliveryPersonnel deliveryPersonnel) {
+        if (!deliveryPersonnelExistsByID(deliveryPersonnel.getID())) {
+            String query = "INSERT INTO deliveryPersonnel (firstName, lastName, postalCode) VALUES (?, ?, ?)";
             try (PreparedStatement pstmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-                pstmt.setString(1, deliveryPersonel.getFirstName());
-                pstmt.setString(2, deliveryPersonel.getLastName());
-                pstmt.setString(3, deliveryPersonel.getPostalcode());
+                pstmt.setString(1, deliveryPersonnel.getFirstName());
+                pstmt.setString(2, deliveryPersonnel.getLastName());
+                pstmt.setString(3, deliveryPersonnel.getPostalcode());
 
                 int affectedRows = pstmt.executeUpdate();
                 if (affectedRows > 0) {
                     try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                         if (generatedKeys.next()) {
                             int id = generatedKeys.getInt(1);
-                            deliveryPersonel.setID(id);
+                            deliveryPersonnel.setID(id);
                         }
                     }
                 }
@@ -43,11 +43,11 @@ public class DeliveryPersonelDAOImpl implements DeliveryPersonelDAO {
     }
 
     @Override
-    public void delete(DeliveryPersonel deliveryPersonel) {
-        if (deliveryPersonelExistsByID(deliveryPersonel.getID())) {
-            String query = "DELETE FROM delivery_personel WHERE ID = ?";
+    public void delete(DeliveryPersonnel deliveryPersonnel) {
+        if (deliveryPersonnelExistsByID(deliveryPersonnel.getID())) {
+            String query = "DELETE FROM deliveryPersonnel WHERE ID = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-                pstmt.setInt(1, deliveryPersonel.getID());
+                pstmt.setInt(1, deliveryPersonnel.getID());
                 pstmt.executeUpdate();
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
@@ -58,13 +58,13 @@ public class DeliveryPersonelDAOImpl implements DeliveryPersonelDAO {
     }
 
     @Override
-    public void update(DeliveryPersonel deliveryPersonel) {
-        String query = "UPDATE delivery_personel SET firstName = ?, lastName = ?, postalCode = ? WHERE ID = ?";
+    public void update(DeliveryPersonnel deliveryPersonnel) {
+        String query = "UPDATE deliveryPersonnel SET firstName = ?, lastName = ?, postalCode = ? WHERE ID = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setString(1, deliveryPersonel.getFirstName());
-            pstmt.setString(2, deliveryPersonel.getLastName());
-            pstmt.setString(3, deliveryPersonel.getPostalcode());
-            pstmt.setInt(4, deliveryPersonel.getID());
+            pstmt.setString(1, deliveryPersonnel.getFirstName());
+            pstmt.setString(2, deliveryPersonnel.getLastName());
+            pstmt.setString(3, deliveryPersonnel.getPostalcode());
+            pstmt.setInt(4, deliveryPersonnel.getID());
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -73,29 +73,30 @@ public class DeliveryPersonelDAOImpl implements DeliveryPersonelDAO {
     }
 
     @Override
-    public DeliveryPersonel findByID(int id) {
-        String query = "SELECT * FROM delivery_personel WHERE ID = ?";
-        DeliveryPersonel deliveryPersonel = null;
+    public DeliveryPersonnel findByID(int id) {
+        String query = "SELECT * FROM deliveryPersonnel WHERE ID = ?";
+        DeliveryPersonnel deliveryPersonnel = null;
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    deliveryPersonel = new DeliveryPersonel(
-                        rs.getInt("ID"),
+                    id = rs.getInt("ID");
+                    deliveryPersonnel = new DeliveryPersonnel(
                         rs.getString("firstName"),
                         rs.getString("lastName"),
                         rs.getString("postalCode")
                     );
+                    deliveryPersonnel.setID(id);
                 }
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-        return deliveryPersonel;
+        return deliveryPersonnel;
     }
 
-    private boolean deliveryPersonelExistsByID(int id) {
-        String query = "SELECT COUNT(*) FROM delivery_personel WHERE ID = ?";
+    private boolean deliveryPersonnelExistsByID(int id) {
+        String query = "SELECT COUNT(*) FROM deliveryPersonnel WHERE ID = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {

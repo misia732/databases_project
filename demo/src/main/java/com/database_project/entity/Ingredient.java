@@ -7,8 +7,7 @@ public class Ingredient {
     private boolean isVegeterian;
     private boolean isVegan;
 
-    public Ingredient(int iD, String name, double price, boolean isVegeterian, boolean isVegan) {
-        ID = iD;
+    public Ingredient(String name, double price, boolean isVegeterian, boolean isVegan) {
         this.name = name;
         this.price = price;
         this.isVegeterian = isVegeterian;

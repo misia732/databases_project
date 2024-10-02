@@ -39,8 +39,9 @@ public class CustomerDAOImpl implements CustomerDAO {
                         int id = generatedKeys.getInt(1);
                         customer.setID(id);
                     }
+                    }
                 }
-            }
+                System.out.println("Customer: " + customer.toString() + " inserted");
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
             }

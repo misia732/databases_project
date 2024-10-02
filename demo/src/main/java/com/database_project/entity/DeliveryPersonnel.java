@@ -1,12 +1,12 @@
 package com.database_project.entity;
 
-public class DeliveryPersonel {
+public class DeliveryPersonnel {
     private int ID;
     private String firstName;
     private String lastName;
     private String postalcode;
-    public DeliveryPersonel(int iD, String firstName, String lastName, String postalcode) {
-        ID = iD;
+    
+    public DeliveryPersonnel(String firstName, String lastName, String postalcode) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.postalcode = postalcode;
@@ -37,7 +37,7 @@ public class DeliveryPersonel {
     }
     @Override
     public String toString() {
-        return "DeliveryPersonel [ID=" + ID + ", firstName=" + firstName + ", lastName=" + lastName + ", postalcode="
+        return "DeliveryPersonnel [ID=" + ID + ", firstName=" + firstName + ", lastName=" + lastName + ", postalcode="
                 + postalcode + "]";
     }
     

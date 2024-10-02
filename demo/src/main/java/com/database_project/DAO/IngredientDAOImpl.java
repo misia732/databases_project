@@ -80,13 +80,14 @@ public class IngredientDAOImpl implements IngredientDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
+                    int id = rs.getInt("ID");
                     ingredient = new Ingredient(
-                        rs.getInt("ID"),
                         rs.getString("name"),
                         rs.getDouble("price"),
                         rs.getBoolean("isVegeterian"),
                         rs.getBoolean("isVegan")
                     );
+                    ingredient.setID(id);
                 }
             }
         } catch (SQLException e) {

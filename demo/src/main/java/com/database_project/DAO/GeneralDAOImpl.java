@@ -20,16 +20,14 @@ public class GeneralDAOImpl implements GeneralDAO {
     }
 
     @Override
-    public void delete(String table){
-        String query = "DELETE FROM ?;";
+    public void delete(String table) {
+        String query = "DELETE FROM " + table;
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setString(1, table);
             pstmt.executeUpdate();
+            System.out.println("Table " + table + "deleted.");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-            return;
         }
-
     }
     
 }
