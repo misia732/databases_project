@@ -5,7 +5,7 @@ import java.sql.Date;
 public class Customer{
 
     public Customer(String firstName, String lastName, String gender, Date birthDate, String phoneNumber,
-            String email, String address, String postalcode, String city, int pizzaCount) {
+            String email, String password, String address, String postalcode, String city, int pizzaCount) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
@@ -16,6 +16,7 @@ public class Customer{
         this.postalcode = postalcode;
         this.city = city;
         this.pizzaCount = pizzaCount;
+        this.password = password;
     }
 
     private int ID;
@@ -29,6 +30,15 @@ public class Customer{
     private String postalcode;
     private String city;
     private int pizzaCount;
+    private String password;    // unique for every customer
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public int getID() {
         return ID;
@@ -121,7 +131,7 @@ public class Customer{
     @Override
     public String toString() {
         return "Customer [firstName=" + firstName + ", lastName=" + lastName + ", gender=" + gender
-                + ", birthDate=" + birthDate + ", phoneNumber=" + phoneNumber + ", email=" + email + ", adress="
+                + ", birthDate=" + birthDate + ", phoneNumber=" + phoneNumber + ", email=" + email + ", password=" + password + ", adress="
                 + address + ", postalcode=" + postalcode + ", city=" + city + ", pizzaCount=" + pizzaCount + "]";
     }
 }

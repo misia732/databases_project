@@ -5,11 +5,19 @@ public class DeliveryPersonnel {
     private String firstName;
     private String lastName;
     private String postalcode;
+    private String status;
     
-    public DeliveryPersonnel(String firstName, String lastName, String postalcode) {
+    public String getStatus() {
+        return status;
+    }
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    public DeliveryPersonnel(String firstName, String lastName, String postalcode, String status) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.postalcode = postalcode;
+        this.status = status;
     }
     public int getID() {
         return ID;
@@ -38,7 +46,7 @@ public class DeliveryPersonnel {
     @Override
     public String toString() {
         return "DeliveryPersonnel [ID=" + ID + ", firstName=" + firstName + ", lastName=" + lastName + ", postalcode="
-                + postalcode + "]";
+                + postalcode + ", status=" + status + "]";
     }
     
     

@@ -19,11 +19,13 @@ public class DeliveryPersonnelDAOImpl implements DeliveryPersonnelDAO {
     @Override
     public void insert(DeliveryPersonnel deliveryPersonnel) {
         if (!deliveryPersonnelExistsByID(deliveryPersonnel.getID())) {
-            String query = "INSERT INTO deliveryPersonnel (firstName, lastName, postalCode) VALUES (?, ?, ?)";
+            String query = "INSERT INTO deliveryPersonnel (firstName, lastName, postalCode, status) VALUES (?, ?, ?, ?)";
             try (PreparedStatement pstmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
                 pstmt.setString(1, deliveryPersonnel.getFirstName());
                 pstmt.setString(2, deliveryPersonnel.getLastName());
                 pstmt.setString(3, deliveryPersonnel.getPostalcode());
+                pstmt.setString(4, deliveryPersonnel.getStatus());
+
 
                 int affectedRows = pstmt.executeUpdate();
                 if (affectedRows > 0) {
@@ -59,12 +61,13 @@ public class DeliveryPersonnelDAOImpl implements DeliveryPersonnelDAO {
 
     @Override
     public void update(DeliveryPersonnel deliveryPersonnel) {
-        String query = "UPDATE deliveryPersonnel SET firstName = ?, lastName = ?, postalCode = ? WHERE ID = ?";
+        String query = "UPDATE deliveryPersonnel SET firstName = ?, lastName = ?, postalCode = ?, status = ? WHERE ID = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, deliveryPersonnel.getFirstName());
             pstmt.setString(2, deliveryPersonnel.getLastName());
             pstmt.setString(3, deliveryPersonnel.getPostalcode());
-            pstmt.setInt(4, deliveryPersonnel.getID());
+            pstmt.setString(4, deliveryPersonnel.getStatus());
+            pstmt.setInt(5, deliveryPersonnel.getID());
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -84,7 +87,8 @@ public class DeliveryPersonnelDAOImpl implements DeliveryPersonnelDAO {
                     deliveryPersonnel = new DeliveryPersonnel(
                         rs.getString("firstName"),
                         rs.getString("lastName"),
-                        rs.getString("postalCode")
+                        rs.getString("postalCode"),
+                        rs.getString("status")
                     );
                     deliveryPersonnel.setID(id);
                 }
@@ -93,6 +97,29 @@ public class DeliveryPersonnelDAOImpl implements DeliveryPersonnelDAO {
             System.out.println(e.getMessage());
         }
         return deliveryPersonnel;
+    }
+
+    @Override
+    public DeliveryPersonnel findAvailablePersonnel() {
+        String query = "SELECT * FROM deliveryPersonnel WHERE status = ? LIMIT 1";
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, "Available");
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                DeliveryPersonnel personnel = new DeliveryPersonnel(
+                    rs.getString("firtsName"),
+                    rs.getString("lastName"),
+                    rs.getString("postalcode"),
+                    rs.getString("status"
+                ));
+
+                return personnel;
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
     }
 
     private boolean deliveryPersonnelExistsByID(int id) {

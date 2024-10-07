@@ -3,18 +3,15 @@ package com.database_project.entity;
 public class PizzaIngredient {
     @Override
     public String toString() {
-        return "PizzaIngredient [pizzaID=" + pizzaID + ", ingredientID=" + ingredientID + ", quantity=" + quantity
-                + "]";
+        return "PizzaIngredient [pizzaID=" + pizzaID + ", ingredientID=" + ingredientID + "]";
     }
 
     private int pizzaID;
     private int ingredientID;
-    private int quantity;
     
-    public PizzaIngredient(int pizzaID, int ingredientID, int quantity) {
+    public PizzaIngredient(int pizzaID, int ingredientID) {
         this.pizzaID = pizzaID;
         this.ingredientID = ingredientID;
-        this.quantity = quantity;
     }
 
     public int getPizzaID() {
@@ -31,14 +28,6 @@ public class PizzaIngredient {
 
     public void setIngredientID(int ingredientID) {
         this.ingredientID = ingredientID;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
     }
     
 }

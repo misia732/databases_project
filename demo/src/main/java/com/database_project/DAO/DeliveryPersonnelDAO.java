@@ -7,5 +7,5 @@ public interface DeliveryPersonnelDAO {
     void delete(DeliveryPersonnel deliveryPersonnel);
     void update(DeliveryPersonnel deliveryPersonnel);
     DeliveryPersonnel findByID(int id);
-    
+    DeliveryPersonnel findAvailablePersonnel();
 }
