@@ -86,8 +86,46 @@ public class DrinkAndDesertDAOImpl implements DrinkAndDesertDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    item = new DrinkAndDesert(rs.getInt("ID"), rs.getString("name"), rs.getDouble("price"));
+                    item = new DrinkAndDesert(rs.getString("name"), rs.getDouble("price"));
                 }
+                item.setID(rs.getInt("ID"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Retrieval Error: " + e.getMessage());
+        }
+        return item;
+    }
+
+    private boolean drinkAndDesertExistsByID(int id) {
+        String query = "SELECT COUNT(*) FROM drink_and_dessert WHERE name = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, id);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Existence Check Error: " + e.getMessage());
+        }
+        return false;
+    }
+    @Override
+    public DrinkAndDesert findByID(int id) {
+        if(!drinkAndDesertExistsByID(id)){
+            System.out.println("Drink or Desert does not exist");
+            return null;
+        }
+        String query = "SELECT * FROM drinkAndDessert WHERE ID = ?";
+        DrinkAndDesert item = null;
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, id);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    item = new DrinkAndDesert(rs.getString("name"), rs.getDouble("price"));
+                }
+                item.setID(rs.getInt("ID"));
             }
         } catch (SQLException e) {
             System.out.println("Retrieval Error: " + e.getMessage());

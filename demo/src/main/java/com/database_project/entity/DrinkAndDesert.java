@@ -4,8 +4,7 @@ public class DrinkAndDesert {
     private int ID;
     private String name;
     private double price;
-    public DrinkAndDesert(int iD, String name, double price) {
-        ID = iD;
+    public DrinkAndDesert(String name, double price) {
         this.name = name;
         this.price = price;
     }

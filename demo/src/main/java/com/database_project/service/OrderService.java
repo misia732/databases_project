@@ -20,6 +20,7 @@ public class OrderService {
     private OrderPizzaDAO orderPizzaDAO;
     private OrderDrinkAndDesertDAO orderDrinkAndDesertDAO;
     private PizzaDAO pizzaDAO;
+    private DrinkAndDesertDAO drinkAndDesertDAO;
 
     public OrderService(Connection conn) {
         this.conn = conn;
@@ -30,9 +31,10 @@ public class OrderService {
         this.orderPizzaDAO = new OrderPizzaDAOImpl(conn);
         this.orderDrinkAndDesertDAO = new OrderDrinkAndDesertDAOImpl(conn);
         this.pizzaDAO = new PizzaDAOImpl(conn);
+        this.drinkAndDesertDAO = new DrinkAndDesertDAOImpl(conn);
     }
 
-    public void placeOrder(int customerID, List<OrderPizza> pizzas, List<OrderDrinkAndDesert> drinksAndDesserts) throws SQLException {
+    public void placeOrder(int customerID, List<OrderPizza> pizzas, List<OrderDrinkAndDesert> drinksAndDesserts, String discountCodeID) throws SQLException {
         Customer customer = customerDAO.findByID(customerID);
         if (customer == null) {
             System.out.println("Customer not found.");
@@ -42,20 +44,35 @@ public class OrderService {
             return;
         }
 
-        //discounts?
-
         Order order = new Order(customerID, null, "placed", "", 0);
         orderDAO.insert(order);
 
-        for (OrderPizza pizza : pizzas) {
-            pizza.setOrderID(order.getID());
-            orderPizzaDAO.insert(pizza);
-        }
-        for (OrderDrinkAndDesert drinkAndDessert : drinksAndDesserts) {
-            drinkAndDessert.setOrderID(order.getID());
-            orderDrinkAndDesertDAO.insert(drinkAndDessert);
+        double price = pizzasPrice(order) + drinkAndDesertPrice(order);
+
+        // free pizza and drink on birthday
+        if(isBirthday(customerID)){
+            price -= theLowestPizzaPrice(order);
+            price -= theLowestDrinkAndDesertPrice(order);
         }
 
+        // 10% dicount if 10 pizzas ordered
+        if(customer.getPizzaCount()%10 == 0){
+            price *= 0.9;
+        }
+
+        // if customer included discount code
+        if(!discountCodeID.isEmpty()){
+            DiscountCode discountCode = discountCodeDAO.findByID(discountCodeID);
+            if(discountCode == null){
+                System.out.println("Discount code does not exist.");
+            }
+            else if (discountCode.isUsed()){
+                System.out.println("Discount code is used.");
+            }
+            else{
+                price *= (1 - discountCode.getPercentage());
+            }
+        }
         deliveryService.assignDeliveryPersonnel(order);
         deliveryService.updateDeliveryTime(order.getID());
     }
@@ -63,35 +80,26 @@ public class OrderService {
     public double pizzasPrice(Order order) throws SQLException {
         int orderID = order.getID();
         List<OrderPizza> orderPizzas = orderPizzaDAO.findByOrderID(orderID);
-        List<Pizza> pizzas = orderPizzaDAO.listPizzas(orderID);
         double price = 0;
-        orderPizzaDAO.findByOrderID(orderID);
         for (OrderPizza orderPizza : orderPizzas) {
             int pizzaID = orderPizza.getPizzaID();
             int quantity = orderPizza.getQuantity();
-            List<Ingredient> ingredients = pizzaDAO.listIngredients(pizzaID);
-            for(Ingredient ingredient : ingredients){
-                price += ingredient.getPrice() * quantity;
-            }
+            double pizzaPrice = calculatePizzaPrice(pizzaDAO.findByID(pizzaID));
+            price =+ calculatePizzaPrice(pizzaDAO.findByID(pizzaID));
         }
-        if(isBirthday(order.getCustomerID())){
-            price -= theLowestPizzaPrice(pizzas);
-        } 
-        // discounts
+        // 40% prifit margin + 9% VAT
+        price *= 1.4;
+        price *= 1.09;
         return price;
     }
 
-    private boolean isBirthday(int customerID){
-        Customer customer = customerDAO.findByID(customerID);
-        LocalDate today = LocalDate.now();
-        LocalDate birthdate = customer.getBirthDate().toLocalDate();
-        if (birthdate.getDayOfMonth() == today.getDayOfMonth() && birthdate.getMonth() == today.getMonth()) {
-            return true;
+    private double theLowestPizzaPrice(Order order){
+        int orderID = order.getID();
+        List<OrderPizza> orderPizzas = orderPizzaDAO.findByOrderID(orderID);
+        List<Pizza> pizzas = new ArrayList<>();
+        for(OrderPizza orderPizza : orderPizzas){
+            pizzas.add(pizzaDAO.findByID(orderPizza.getPizzaID()));
         }
-        return false;
-    }
-
-    private double theLowestPizzaPrice(List<Pizza> pizzas){
         double min = calculatePizzaPrice(pizzas.get(0));
         pizzas.remove(0);
         for(Pizza pizza : pizzas){
@@ -110,8 +118,46 @@ public class OrderService {
         return price;
     }
 
-    public List<OrderDrinkAndDesert> getDrinksAndDessertsByOrderID(int orderID) throws SQLException {
-        return orderDrinkAndDesertDAO.findByOrderID(orderID);
+    public double drinkAndDesertPrice(Order order) throws SQLException {
+        int orderID = order.getID();
+        List<OrderDrinkAndDesert> orderDrinksAndDeserts = orderDrinkAndDesertDAO.findByOrderID(orderID);
+        double price = 0;
+        for (OrderDrinkAndDesert orderDrinkAndDesert : orderDrinksAndDeserts) {
+            int id = orderDrinkAndDesert.getDrinkAndDesertID();
+            DrinkAndDesert drinkAndDesert = drinkAndDesertDAO.findByID(id);
+            price += calculateDrinkAndDesertPrice(drinkAndDesert) * orderDrinkAndDesert.getQuantity();
+        }
+        return price;
+    }
+
+    private double theLowestDrinkAndDesertPrice(Order order){
+        int orderID = order.getID();
+        List<OrderDrinkAndDesert> orderDrinksAndDeserts = orderDrinkAndDesertDAO.findByOrderID(orderID);
+        List<DrinkAndDesert> drinksAndDeserts = new ArrayList<>();
+        for(OrderDrinkAndDesert orderDrinkAndDesert : orderDrinksAndDeserts){
+            drinksAndDeserts.add(drinkAndDesertDAO.findByID(orderDrinkAndDesert.getDrinkAndDesertID()));
+        }
+        double min = calculateDrinkAndDesertPrice(drinksAndDeserts.get(0));
+        drinksAndDeserts.remove(0);
+        for(DrinkAndDesert drinkAndDesert : drinksAndDeserts){
+            double price = calculateDrinkAndDesertPrice(drinkAndDesert);
+            if(price < min) min = price;
+        }
+        return min;
+    }
+
+    private double calculateDrinkAndDesertPrice(DrinkAndDesert drinkAndDesert){
+        return drinkAndDesert.getPrice();
+    }
+
+    private boolean isBirthday(int customerID){
+        Customer customer = customerDAO.findByID(customerID);
+        LocalDate today = LocalDate.now();
+        LocalDate birthdate = customer.getBirthDate().toLocalDate();
+        if (birthdate.getDayOfMonth() == today.getDayOfMonth() && birthdate.getMonth() == today.getMonth()) {
+            return true;
+        }
+        return false;
     }
     
     private String generateRandomCode() {

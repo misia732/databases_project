@@ -43,8 +43,8 @@ public class CustomerService {
         long millis = System.currentTimeMillis();  
         java.sql.Date today = new java.sql.Date(millis);  
         if(today == customer.getBirthDate()){
-            DiscountCode birthdayDiscountCode = new DiscountCode(generateRandomCode(), false, 0, 0);
-            //discountCodeDAO.insert(discountCode);
+            // if the customer has birthday today then isBirthday is updated for this customer
+            customer.setBirthday(true);
         }
         return customer;
     }

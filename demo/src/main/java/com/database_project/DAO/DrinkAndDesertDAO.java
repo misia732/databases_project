@@ -7,4 +7,6 @@ public interface  DrinkAndDesertDAO {
     void delete(DrinkAndDesert item);
     void update(DrinkAndDesert item);
     DrinkAndDesert findByName(String name);
+    DrinkAndDesert findByID(int id);
+
 }

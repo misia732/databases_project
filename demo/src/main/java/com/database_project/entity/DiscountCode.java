@@ -3,24 +3,16 @@ package com.database_project.entity;
 public class DiscountCode {
     @Override
     public String toString() {
-        return "DiscountCode [ID=" + ID + ", isUsed=" + isUsed + ", percentage=" + percentage + ", customerID=" + customerID + "]";
+        return "DiscountCode [ID=" + ID + ", isUsed=" + isUsed + ", percentage=" + percentage + "]";
     }
     private String ID;
     private boolean isUsed;
-    private int percentage;
-    private int customerID;
+    private double percentage;
 
-    public int getCustomerID() {
-        return customerID;
-    }
-    public void setCustomerID(int customerID) {
-        this.customerID = customerID;
-    }
-    public DiscountCode(String iD, boolean isUsed, int percentage, int customerID) {
+    public DiscountCode(String iD, boolean isUsed, double percentage) {
         ID = iD;
         this.isUsed = isUsed;
         this.percentage = percentage;
-        this.customerID = customerID;
     }
     public String getID() {
         return ID;
@@ -34,7 +26,7 @@ public class DiscountCode {
     public void setUsed(boolean isUsed) {
         this.isUsed = isUsed;
     }
-    public int getPercentage() {
+    public double getPercentage() {
         return percentage;
     }
     public void setPercentage(int percentage) {

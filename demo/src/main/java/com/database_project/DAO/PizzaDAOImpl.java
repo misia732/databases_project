@@ -156,8 +156,8 @@ public class PizzaDAOImpl implements PizzaDAO {
     @Override
     public List<Ingredient> listIngredients(int pizzaID) {
         List<Ingredient> ingredients = new ArrayList<>();
-        String query = "SELECT ingredient.ID, ingredient.name, ingredient.price, ingredient.isVegeterian, ingredient.isVegan FROM ingredients"
-                    + "JOIN pizzaIngredient ON ingredients.ID = pizzaIngredient.ingredientID "
+        String query = "SELECT ingredient.ID, ingredient.name, ingredient.price, ingredient.isVegeterian, ingredient.isVegan FROM ingredient"
+                    + "JOIN pizzaIngredient ON ingredient.ID = pizzaIngredient.ingredientID "
                     + "WHERE pizzaIngredient.pizzaID = ?";
                     
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {

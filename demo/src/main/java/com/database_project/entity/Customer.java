@@ -32,6 +32,18 @@ public class Customer{
     private int pizzaCount;
     private String password;    // unique for every customer
 
+    private boolean isBirthday = false;
+
+    
+
+    public boolean isBirthday() {
+        return isBirthday;
+    }
+
+    public void setBirthday(boolean isBirthday) {
+        this.isBirthday = isBirthday;
+    }
+
     public String getPassword() {
         return password;
     }

@@ -7,7 +7,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.database_project.entity.DrinkAndDesert;
 import com.database_project.entity.OrderDrinkAndDesert;
+import com.database_project.entity.Pizza;
 
 public class OrderDrinkAndDesertDAOImpl implements OrderDrinkAndDesertDAO {
 
@@ -91,25 +93,26 @@ public class OrderDrinkAndDesertDAOImpl implements OrderDrinkAndDesertDAO {
     }
 
     @Override
-    public OrderDrinkAndDesert findByOrderIDAndDrinkAndDesertID(int orderID, int drinkAndDesertID) {
-        String query = "SELECT * FROM orderDrinkAndDesert WHERE orderID = ? AND drinkAndDesertID = ?";
-        OrderDrinkAndDesert orderDrinkAndDesert = null;
+    public List<DrinkAndDesert> listDrinkAndDeserts(int orderID) {
+        String query = "SELECT drinkAndDesert.ID, drinkAndDesert.name, drinkAndDesert.price" +
+                    "FROM drinkAndDesert " +
+                    "JOIN orderDrinkAndDesert ON drinkAndDesert.ID = orderDrinkAndDesert.drinkAndDesertID " +
+                    "WHERE orderDrinkAndDesert.orderID = ?";
+        List<DrinkAndDesert> drinksAndDeserts = new ArrayList<>();
+
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, orderID);
-            pstmt.setInt(2, drinkAndDesertID);
 
             try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    orderDrinkAndDesert = new OrderDrinkAndDesert(
-                        rs.getInt("orderID"),
-                        rs.getInt("drinkAndDesertID"),
-                        rs.getInt("quantity")
-                    );
+                while (rs.next()) {
+                    DrinkAndDesert drinkAndDesert = new DrinkAndDesert(rs.getString("name"), rs.getInt("price"));
+                    drinkAndDesert.setID(rs.getInt("ID"));
+                    drinksAndDeserts.add(drinkAndDesert);
                 }
             }
         } catch (SQLException e) {
             System.out.println("Retrieval Error: " + e.getMessage());
         }
-        return orderDrinkAndDesert;
+        return drinksAndDeserts;
     }
 }
