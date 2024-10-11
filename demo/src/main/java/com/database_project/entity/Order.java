@@ -7,19 +7,27 @@ import java.util.List;
 public class Order {
     private int ID;
     private int customerID;
-    private LocalDateTime deliveryTime;
+    private LocalDateTime placementTime;
     private String status;
-    private String discountCodeID;
     private int deliveryPersonnelID;
-    private List<OrderPizza> pizzas;
-    private List<OrderDrinkAndDesert> drinksAndDeserts;
+    private double price;
 
-    public Order(int customerID, LocalDateTime deliveryTime, String status, String discountCodeID, int deliveryPersonelID) {
+    public double getPrice() {
+        return price;
+    }
+
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+
+    public Order(int customerID, LocalDateTime placementTime, String status, Integer deliveryPersonelID, Double price) {
         this.customerID = customerID;
-        this.deliveryTime = deliveryTime;
+        this.placementTime = placementTime;
         this.status = status;
-        this.discountCodeID = discountCodeID;
         this.deliveryPersonnelID = deliveryPersonelID;
+        this.price = price;
     }
 
 
@@ -35,23 +43,17 @@ public class Order {
     public void setCustomerID(int customerID) {
         this.customerID = customerID;
     }
-    public LocalDateTime getDeliveryTime() {
-        return deliveryTime;
+    public LocalDateTime getPlacementTime() {
+        return placementTime;
     }
-    public void setDeliveryTime(LocalDateTime deliveryTime) {
-        this.deliveryTime = deliveryTime;
+    public void setPlacementTime(LocalDateTime deliveryTime) {
+        this.placementTime = deliveryTime;
     }
     public String getStatus() {
         return status;
     }
     public void setStatus(String status) {
         this.status = status;
-    }
-    public String getDiscountCodeID() {
-        return discountCodeID;
-    }
-    public void setDiscountCodeID(String discountCodeID) {
-        this.discountCodeID = discountCodeID;
     }
     public int getDeliveryPersonnelID() {
         return deliveryPersonnelID;
@@ -62,9 +64,8 @@ public class Order {
 
     @Override
     public String toString() {
-        return "Order [ID=" + ID + ", customerID=" + customerID + ", deliveryTime=" + deliveryTime + ", status="
-                + status + ", discountCodeID=" + discountCodeID + ", deliveryPersonnelID="
-                + deliveryPersonnelID + "]";
+        return "Order [ID=" + ID + ", customerID=" + customerID + ", placementTime=" + placementTime + ", status="
+                + status + ", deliveryPersonnelID=" + deliveryPersonnelID + ", price=" + price + "]";
     }
     
 }

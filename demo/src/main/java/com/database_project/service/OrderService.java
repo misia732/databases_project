@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDateTime;
 
 import com.database_project.DAO.*;
 import com.database_project.entity.*;
@@ -44,15 +45,12 @@ public class OrderService {
             return;
         }
 
-        Order order = new Order(customerID, null, "placed", "", 0);
-        orderDAO.insert(order);
-
-        double price = pizzasPrice(order) + drinkAndDesertPrice(order);
+        double price = pizzasPrice(pizzas) + drinkAndDesertPrice(drinksAndDesserts);
 
         // free pizza and drink on birthday
         if(isBirthday(customerID)){
-            price -= theLowestPizzaPrice(order);
-            price -= theLowestDrinkAndDesertPrice(order);
+            price -= theLowestPizzaPrice(pizzas);
+            price -= theLowestDrinkAndDesertPrice(drinksAndDesserts);
         }
 
         // 10% dicount if 10 pizzas ordered
@@ -73,13 +71,13 @@ public class OrderService {
                 price *= (1 - discountCode.getPercentage());
             }
         }
-        deliveryService.assignDeliveryPersonnel(order);
-        deliveryService.updateDeliveryTime(order.getID());
+
+        LocalDateTime now = LocalDateTime.now();
+        Order order = new Order(customerID, now, "being prepared", null, null);
+        orderDAO.insert(order);
     }
 
-    public double pizzasPrice(Order order) throws SQLException {
-        int orderID = order.getID();
-        List<OrderPizza> orderPizzas = orderPizzaDAO.findByOrderID(orderID);
+    public double pizzasPrice(List<OrderPizza> orderPizzas) throws SQLException {
         double price = 0;
         for (OrderPizza orderPizza : orderPizzas) {
             int pizzaID = orderPizza.getPizzaID();
@@ -93,9 +91,7 @@ public class OrderService {
         return price;
     }
 
-    private double theLowestPizzaPrice(Order order){
-        int orderID = order.getID();
-        List<OrderPizza> orderPizzas = orderPizzaDAO.findByOrderID(orderID);
+    private double theLowestPizzaPrice(List<OrderPizza> orderPizzas){
         List<Pizza> pizzas = new ArrayList<>();
         for(OrderPizza orderPizza : orderPizzas){
             pizzas.add(pizzaDAO.findByID(orderPizza.getPizzaID()));
@@ -118,9 +114,7 @@ public class OrderService {
         return price;
     }
 
-    public double drinkAndDesertPrice(Order order) throws SQLException {
-        int orderID = order.getID();
-        List<OrderDrinkAndDesert> orderDrinksAndDeserts = orderDrinkAndDesertDAO.findByOrderID(orderID);
+    public double drinkAndDesertPrice(List<OrderDrinkAndDesert> orderDrinksAndDeserts) throws SQLException {
         double price = 0;
         for (OrderDrinkAndDesert orderDrinkAndDesert : orderDrinksAndDeserts) {
             int id = orderDrinkAndDesert.getDrinkAndDesertID();
@@ -130,9 +124,7 @@ public class OrderService {
         return price;
     }
 
-    private double theLowestDrinkAndDesertPrice(Order order){
-        int orderID = order.getID();
-        List<OrderDrinkAndDesert> orderDrinksAndDeserts = orderDrinkAndDesertDAO.findByOrderID(orderID);
+    private double theLowestDrinkAndDesertPrice(List<OrderDrinkAndDesert> orderDrinksAndDeserts){
         List<DrinkAndDesert> drinksAndDeserts = new ArrayList<>();
         for(OrderDrinkAndDesert orderDrinkAndDesert : orderDrinksAndDeserts){
             drinksAndDeserts.add(drinkAndDesertDAO.findByID(orderDrinkAndDesert.getDrinkAndDesertID()));
@@ -159,15 +151,21 @@ public class OrderService {
         }
         return false;
     }
-    
-    private String generateRandomCode() {
-        String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-        StringBuilder code = new StringBuilder();
-        Random rnd = new Random();
-        while (code.length() < 8) {
-            int index = (int) (rnd.nextFloat() * CHARS.length());
-            code.append(CHARS.charAt(index));
+
+    public List<Pizza> getToDoPizzas() throws SQLException {
+        List<Order> beingPrepared = orderDAO.findOrdersByStatus("being prepared");
+        List<Pizza> todo = new ArrayList<>();
+        
+        for (Order order : beingPrepared) {
+            List<OrderPizza> orderPizzas = orderPizzaDAO.findByOrderID(order.getID());
+            for (OrderPizza orderPizza : orderPizzas) {
+                int pizzaID = orderPizza.getPizzaID();
+                int quantity = orderPizza.getQuantity();
+                for(int i = 0; i<quantity; i++){
+                    todo.add(pizzaDAO.findByID(pizzaID));
+                }
+            }
         }
-        return code.toString();
+        return todo;
     }
 }

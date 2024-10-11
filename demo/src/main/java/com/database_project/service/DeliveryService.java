@@ -3,24 +3,30 @@ package com.database_project.service;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-import com.database_project.DAO.DeliveryPersonnelDAO;
-import com.database_project.DAO.DeliveryPersonnelDAOImpl;
-import com.database_project.DAO.OrderDAO;
-import com.database_project.DAO.OrderDAOImpl;
-import com.database_project.entity.DeliveryPersonnel;
-import com.database_project.entity.Order;
+import com.database_project.DAO.*;
+import com.database_project.entity.*;
 
 public class DeliveryService {
 
     private Connection conn;
     private DeliveryPersonnelDAO deliveryPersonnelDAO;
     private OrderDAO orderDAO;
+    private OrderPizzaDAO orderPizzaDAO;
+    private CustomerDAO customerDAO;
 
     public DeliveryService(Connection conn) {
         this.conn = conn;
         this.deliveryPersonnelDAO = new DeliveryPersonnelDAOImpl(conn);
         this.orderDAO = new OrderDAOImpl(conn);
+        this.orderPizzaDAO = new OrderPizzaDAOImpl(conn);
+        this.customerDAO = new CustomerDAOImpl(conn);
     }
 
     public void updateOrderStatus(Order order, String status) throws SQLException {
@@ -34,9 +40,31 @@ public class DeliveryService {
         orderDAO.update(order);
     }
 
+    public boolean cancelOrder(int orderId) throws SQLException {
+        Order order = orderDAO.findById(orderId);
+        if (order == null) {
+            System.out.println("Order not found.");
+            return false;
+        }
+        
+        LocalDateTime orderTime = order.getPlacementTime();
+        LocalDateTime now = LocalDateTime.now();
+        
+        // check if 5 minutes have passed since the placenet time
+        if (Duration.between(orderTime, now).toMinutes() < 5) {
+            orderDAO.delete(order);
+            System.out.println("Order canceled.");
+            return true;
+        } else {
+            System.out.println("Order cannot be canceled after 5 minutes.");
+            return false;
+        }
+    }
+
     public void assignDeliveryPersonnel(Order order) throws SQLException {
         DeliveryPersonnel availablePersonnel = deliveryPersonnelDAO.findAvailablePersonnel();
-        
+        Customer customer = customerDAO.findByID(order.getCustomerID());
+
         if (availablePersonnel == null) {
             System.out.println("No delivery personnel available.");
             return;
@@ -48,21 +76,35 @@ public class DeliveryService {
 
         availablePersonnel.setStatus("busy");
         deliveryPersonnelDAO.update(availablePersonnel);
-    }
 
-    public LocalDateTime updateDeliveryTime(int orderId) throws SQLException {
-        Order order = orderDAO.findById(orderId);
-        if (order == null) {
-            System.out.println("Order not found.");
-            return null;
+        
+        List<Order> ordersForOneDelivery = new ArrayList<>();
+        ordersForOneDelivery.add(order);
+        if(numberOfPizzas(order) <= 3){
+            List<Order> orderCluster = orderDAO.findOrdersByPostalcodeAndTime(customer.getPostalcode(), LocalDateTime.now().minusMinutes(3));
+            for(Order orderToAdd : orderCluster){
+                if (numberOfPizzas(orderToAdd) < 3) 
+                    ordersForOneDelivery.add(orderToAdd);
+            }
+        }
+        
+        for(Order o : ordersForOneDelivery){
+            o.setDeliveryPersonnelID(availablePersonnel.getID());
+            o.setStatus("out for delivery");
+            orderDAO.update(o);
+            System.out.println("Order from customer " + customer.getID() + " will be delivered in 30 min.");
         }
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime deliveryTime = now.plusMinutes(30);
+        availablePersonnel.setStatus("busy");
+        deliveryPersonnelDAO.update(availablePersonnel);
+    }
 
-        order.setDeliveryTime(deliveryTime);
-        orderDAO.update(order);
-        
-        return deliveryTime;
+    private int numberOfPizzas(Order order){
+        List<OrderPizza> orderPizzas = orderPizzaDAO.findByOrderID(order.getID());
+        int numberOfPizzas = 0;
+        for(OrderPizza orderPizza : orderPizzas){
+            numberOfPizzas += orderPizza.getQuantity();
+        }
+        return numberOfPizzas;
     }
 }
