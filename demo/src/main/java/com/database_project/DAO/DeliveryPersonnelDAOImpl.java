@@ -18,7 +18,7 @@ public class DeliveryPersonnelDAOImpl implements DeliveryPersonnelDAO {
 
     @Override
     public void insert(DeliveryPersonnel deliveryPersonnel) {
-        if (!deliveryPersonnelExistsByID(deliveryPersonnel.getID())) {
+        if (!deliveryPersonnelExistsByName(deliveryPersonnel.getFirstName(), deliveryPersonnel.getLastName())) {
             String query = "INSERT INTO deliveryPersonnel (firstName, lastName, postalCode, status) VALUES (?, ?, ?, ?)";
             try (PreparedStatement pstmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
                 pstmt.setString(1, deliveryPersonnel.getFirstName());
@@ -122,10 +122,27 @@ public class DeliveryPersonnelDAOImpl implements DeliveryPersonnelDAO {
         return null;
     }
 
-    private boolean deliveryPersonnelExistsByID(int id) {
+    private boolean deliveryPersonnelExistsByID(Integer id) {
         String query = "SELECT COUNT(*) FROM deliveryPersonnel WHERE ID = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, id);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
+    }
+
+    private boolean deliveryPersonnelExistsByName(String firstName, String lastName) {
+        String query = "SELECT COUNT(*) FROM deliveryPersonnel WHERE firstName = ? AND lastName = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, firstName);
+            pstmt.setString(2, lastName);
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1) > 0;

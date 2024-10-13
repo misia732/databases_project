@@ -81,9 +81,9 @@ public class dbcTest{
 
         // inserting delivery personel
         try (Connection conn = DatabaseConfig.getConnection()) {
-            DeliveryPersonnelDAO customerDAO = new DeliveryPersonnelDAOImpl(conn);
+            DeliveryPersonnelDAO deliveryPersonnelDAO = new DeliveryPersonnelDAOImpl(conn);
             for (DeliveryPersonnel DeliveryPersonnel_ : deliveryPersonnel) {
-                customerDAO.insert(DeliveryPersonnel_);
+                deliveryPersonnelDAO.insert(DeliveryPersonnel_);
             }
         } catch (SQLException e) {
             System.out.println("SQLException: " + e.getMessage());
@@ -118,51 +118,35 @@ public class dbcTest{
             System.out.println("SQLState: " + e.getSQLState());
             System.out.println("VendorError: " + e.getErrorCode());
         }
-
-        try (Connection conn = DatabaseConfig.getConnection()){
-            CustomerDAO customerDAO = new CustomerDAOImpl(conn);
-            customerDAO.insert(customers[0]);
-            System.out.println(customers[0].getEmail());
-            System.out.println(customerDAO.findByEmail(customers[0].getEmail()));
-            //int id = customerDAO.findByEmail(customers[0].getEmail()).getID();
-        } catch (SQLException e) {
-            System.out.println("SQLException: " + e.getMessage());
-            System.out.println("SQLState: " + e.getSQLState());
-            System.out.println("VendorError: " + e.getErrorCode());
-        }
-
         
-        System.out.println(customers[1].getID());
-
-        
-        try(Connection conn = DatabaseConfig.getConnection())
-        {
-            CustomerDAO customerDAO = new CustomerDAOImpl(conn);
-            CustomerService customerService = new CustomerService(conn);
-            OrderDAO orderDAO = new OrderDAOImpl(conn);
-            OrderService orderService = new OrderService(conn);
-            int customerID = 13;
-            int orderID = orderService.initializeNewOrder(customerID);
-            //int orderID = 1;
-            Order order = orderDAO.findByID(orderID);
-            System.out.println(order.toString());
-            OrderPizza orderPizza = new OrderPizza(orderID, 1, 2);
-            List<OrderPizza> pizzas = new ArrayList<>();
-            pizzas.add(orderPizza);
-            OrderDrinkAndDesert drink = new OrderDrinkAndDesert(orderID, 6, 1);
-            List<OrderDrinkAndDesert> drinksAndDeserts = new ArrayList<>();
-            drinksAndDeserts.add(drink);
-            orderService.placeOrder(orderID, pizzas, drinksAndDeserts, "");
-            LocalDateTime now = LocalDateTime.now();
-            order.setPlacementTime(now);
-            orderDAO.update(order);
-            orderService.cancelOrder(orderID);
-        }
-        catch (SQLException e) {
-                System.out.println("SQLException: " + e.getMessage());
-                System.out.println("SQLState: " + e.getSQLState());
-                System.out.println("VendorError: " + e.getErrorCode());
-        };
+        // try(Connection conn = DatabaseConfig.getConnection())
+        // {
+        //     CustomerDAO customerDAO = new CustomerDAOImpl(conn);
+        //     CustomerService customerService = new CustomerService(conn);
+        //     OrderDAO orderDAO = new OrderDAOImpl(conn);
+        //     OrderService orderService = new OrderService(conn);
+        //     int customerID = 13;
+        //     int orderID = orderService.initializeNewOrder(customerID);
+        //     //int orderID = 1;
+        //     Order order = orderDAO.findByID(orderID);
+        //     System.out.println(order.toString());
+        //     OrderPizza orderPizza = new OrderPizza(orderID, 1, 2);
+        //     List<OrderPizza> pizzas = new ArrayList<>();
+        //     pizzas.add(orderPizza);
+        //     OrderDrinkAndDesert drink = new OrderDrinkAndDesert(orderID, 6, 1);
+        //     List<OrderDrinkAndDesert> drinksAndDeserts = new ArrayList<>();
+        //     drinksAndDeserts.add(drink);
+        //     orderService.placeOrder(orderID, pizzas, drinksAndDeserts, "");
+        //     LocalDateTime now = LocalDateTime.now();
+        //     order.setPlacementTime(now);
+        //     orderDAO.update(order);
+        //     orderService.cancelOrder(orderID);
+        // }
+        // catch (SQLException e) {
+        //         System.out.println("SQLException: " + e.getMessage());
+        //         System.out.println("SQLState: " + e.getSQLState());
+        //         System.out.println("VendorError: " + e.getErrorCode());
+        // };
     
     }
 }
