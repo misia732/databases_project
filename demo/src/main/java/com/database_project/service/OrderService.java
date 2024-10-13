@@ -2,6 +2,7 @@ package com.database_project.service;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Random;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ public class OrderService {
     private OrderDrinkAndDesertDAO orderDrinkAndDesertDAO;
     private PizzaDAO pizzaDAO;
     private DrinkAndDesertDAO drinkAndDesertDAO;
+    private IngredientDAO ingredientDAO;
 
     public OrderService(Connection conn) {
         this.conn = conn;
@@ -33,20 +35,31 @@ public class OrderService {
         this.orderDrinkAndDesertDAO = new OrderDrinkAndDesertDAOImpl(conn);
         this.pizzaDAO = new PizzaDAOImpl(conn);
         this.drinkAndDesertDAO = new DrinkAndDesertDAOImpl(conn);
+        this.ingredientDAO = new IngredientDAOImpl(conn);
     }
 
-    public void placeOrder(int customerID, List<OrderPizza> pizzas, List<OrderDrinkAndDesert> drinksAndDesserts, String discountCodeID) throws SQLException {
+    public int initializeNewOrder(int customerID){
         Customer customer = customerDAO.findByID(customerID);
         if (customer == null) {
             System.out.println("Customer not found.");
         }
+        Order order = new Order(customerID, null, null, null, null);
+        int id = orderDAO.insert(order);
+        System.out.println("Order initialized: " + id);
+        return id;
+    }
+
+    public void placeOrder(int orderID, List<OrderPizza> pizzas, List<OrderDrinkAndDesert> drinksAndDesserts, String discountCodeID) throws SQLException {
+        Order order = orderDAO.findByID(orderID);
+        int customerID = order.getCustomerID();
+        Customer customer = customerDAO.findByID(customerID);
         if (pizzas == null || pizzas.isEmpty()) {
             System.out.println("An order must include at least one pizza.");
             return;
         }
 
         double price = pizzasPrice(pizzas) + drinkAndDesertPrice(drinksAndDesserts);
-
+        
         // free pizza and drink on birthday
         if(isBirthday(customerID)){
             price -= theLowestPizzaPrice(pizzas);
@@ -72,9 +85,25 @@ public class OrderService {
             }
         }
 
+        // number of ordered pizzas
+        int n = pizzasNumber(pizzas);
+        customer.setPizzaCount(n);
+        customerDAO.update(customer);
+
         LocalDateTime now = LocalDateTime.now();
-        Order order = new Order(customerID, now, "being prepared", null, null);
-        orderDAO.insert(order);
+        order.setPlacementTime(now);
+        order.setStatus("being prepared");
+        order.setPrice(price);
+        orderDAO.update(order);
+    }
+
+    public int pizzasNumber(List<OrderPizza> orderPizzas) throws SQLException {
+        int n = 0;
+        for (OrderPizza orderPizza : orderPizzas) {
+            int quantity = orderPizza.getQuantity();
+            n += quantity;
+        }
+        return n;
     }
 
     public double pizzasPrice(List<OrderPizza> orderPizzas) throws SQLException {
@@ -83,7 +112,7 @@ public class OrderService {
             int pizzaID = orderPizza.getPizzaID();
             int quantity = orderPizza.getQuantity();
             double pizzaPrice = calculatePizzaPrice(pizzaDAO.findByID(pizzaID));
-            price =+ calculatePizzaPrice(pizzaDAO.findByID(pizzaID));
+            price =+ pizzaPrice;
         }
         // 40% prifit margin + 9% VAT
         price *= 1.4;
@@ -107,9 +136,11 @@ public class OrderService {
 
     private double calculatePizzaPrice(Pizza pizza){
         double price = 0;
-        List<Ingredient> ingredients = pizzaDAO.listIngredients(pizza.getID());
+        int id = pizza.getID();
+        List<Ingredient> ingredients = pizzaDAO.listIngredients(id);
         for(Ingredient ingredient : ingredients){
-            price += ingredient.getPrice();
+            double iprice = ingredient.getPrice();
+            price += iprice;
         }
         return price;
     }
@@ -167,5 +198,26 @@ public class OrderService {
             }
         }
         return todo;
+    }
+    
+    public boolean cancelOrder(int orderId) throws SQLException {
+        Order order = orderDAO.findByID(orderId);
+        if (order == null) {
+            System.out.println("Order not found.");
+            return false;
+        }
+        
+        LocalDateTime orderTime = order.getPlacementTime();
+        LocalDateTime now = LocalDateTime.now();
+        
+        // check if 5 minutes have passed since the placenet time
+        if (Duration.between(orderTime, now).toMinutes() < 5) {
+            orderDAO.delete(order);
+            System.out.println("Order canceled.");
+            return true;
+        } else {
+            System.out.println("Order cannot be canceled after 5 minutes.");
+            return false;
+        }
     }
 }

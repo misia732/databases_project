@@ -31,34 +31,13 @@ public class DeliveryService {
 
     public void updateOrderStatus(Order order, String status) throws SQLException {
         // check if order exists
-        if (orderDAO.findById(order.getID()) == null) {
+        if (orderDAO.findByID(order.getID()) == null) {
             System.out.println("Order not found.");
             return;
         }
         
         order.setStatus(status);
         orderDAO.update(order);
-    }
-
-    public boolean cancelOrder(int orderId) throws SQLException {
-        Order order = orderDAO.findById(orderId);
-        if (order == null) {
-            System.out.println("Order not found.");
-            return false;
-        }
-        
-        LocalDateTime orderTime = order.getPlacementTime();
-        LocalDateTime now = LocalDateTime.now();
-        
-        // check if 5 minutes have passed since the placenet time
-        if (Duration.between(orderTime, now).toMinutes() < 5) {
-            orderDAO.delete(order);
-            System.out.println("Order canceled.");
-            return true;
-        } else {
-            System.out.println("Order cannot be canceled after 5 minutes.");
-            return false;
-        }
     }
 
     public void assignDeliveryPersonnel(Order order) throws SQLException {

@@ -94,10 +94,11 @@ public class OrderDrinkAndDesertDAOImpl implements OrderDrinkAndDesertDAO {
 
     @Override
     public List<DrinkAndDesert> listDrinkAndDeserts(int orderID) {
-        String query = "SELECT drinkAndDesert.ID, drinkAndDesert.name, drinkAndDesert.price" +
-                    "FROM drinkAndDesert " +
-                    "JOIN orderDrinkAndDesert ON drinkAndDesert.ID = orderDrinkAndDesert.drinkAndDesertID " +
-                    "WHERE orderDrinkAndDesert.orderID = ?";
+        String query = "SELECT drinkAndDesert.ID, drinkAndDesert.name, drinkAndDesert.price "
+                    + "FROM drinkAndDesert " 
+                    + "JOIN orderDrinkAndDesert ON drinkAndDesert.ID = orderDrinkAndDesert.drinkAndDesertID " 
+                    + "WHERE orderDrinkAndDesert.orderID = ?";
+                    
         List<DrinkAndDesert> drinksAndDeserts = new ArrayList<>();
 
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -115,4 +116,5 @@ public class OrderDrinkAndDesertDAOImpl implements OrderDrinkAndDesertDAO {
         }
         return drinksAndDeserts;
     }
+
 }

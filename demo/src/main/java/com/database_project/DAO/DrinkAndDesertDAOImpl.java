@@ -19,7 +19,7 @@ public class DrinkAndDesertDAOImpl implements DrinkAndDesertDAO {
     @Override
     public void insert(DrinkAndDesert item) {
         if (!drinkAndDesertExistsByName(item.getName())) {
-            String query = "INSERT INTO drink_and_dessert (name, price) VALUES (?, ?)";
+            String query = "INSERT INTO drinkAndDesert (name, price) VALUES (?, ?)";
             try (PreparedStatement pstmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
                 pstmt.setString(1, item.getName());
                 pstmt.setDouble(2, item.getPrice());
@@ -45,7 +45,7 @@ public class DrinkAndDesertDAOImpl implements DrinkAndDesertDAO {
     @Override
     public void delete(DrinkAndDesert item) {
         if (drinkAndDesertExistsByName(item.getName())) {
-            String query = "DELETE FROM drink_and_dessert WHERE ID = ?";
+            String query = "DELETE FROM drinkAndDesert WHERE ID = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                 pstmt.setInt(1, item.getID());
                 pstmt.executeUpdate();
@@ -60,7 +60,7 @@ public class DrinkAndDesertDAOImpl implements DrinkAndDesertDAO {
 
     @Override
     public void update(DrinkAndDesert item) {
-        String query = "UPDATE drink_and_dessert SET name = ?, price = ? WHERE ID = ?";
+        String query = "UPDATE drinkAndDesert SET name = ?, price = ? WHERE ID = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, item.getName());
             pstmt.setDouble(2, item.getPrice());
@@ -79,7 +79,7 @@ public class DrinkAndDesertDAOImpl implements DrinkAndDesertDAO {
 
     @Override
     public DrinkAndDesert findByName(String name) {
-        String query = "SELECT * FROM drink_and_dessert WHERE name = ?";
+        String query = "SELECT * FROM drinkAndDesert WHERE name = ?";
         DrinkAndDesert item = null;
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, name);
@@ -97,7 +97,7 @@ public class DrinkAndDesertDAOImpl implements DrinkAndDesertDAO {
     }
 
     private boolean drinkAndDesertExistsByID(int id) {
-        String query = "SELECT COUNT(*) FROM drink_and_dessert WHERE name = ?";
+        String query = "SELECT COUNT(*) FROM drinkAndDesert WHERE ID = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -106,7 +106,7 @@ public class DrinkAndDesertDAOImpl implements DrinkAndDesertDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Existence Check Error: " + e.getMessage());
+            System.out.println("Existence Check Error1: " + e.getMessage());
         }
         return false;
     }
@@ -116,7 +116,7 @@ public class DrinkAndDesertDAOImpl implements DrinkAndDesertDAO {
             System.out.println("Drink or Desert does not exist");
             return null;
         }
-        String query = "SELECT * FROM drinkAndDessert WHERE ID = ?";
+        String query = "SELECT * FROM drinkAndDesert WHERE ID = ?";
         DrinkAndDesert item = null;
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, id);
@@ -134,7 +134,7 @@ public class DrinkAndDesertDAOImpl implements DrinkAndDesertDAO {
     }
 
     private boolean drinkAndDesertExistsByName(String name) {
-        String query = "SELECT COUNT(*) FROM drink_and_dessert WHERE name = ?";
+        String query = "SELECT COUNT(*) FROM drinkAndDesert WHERE name = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, name);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -143,7 +143,7 @@ public class DrinkAndDesertDAOImpl implements DrinkAndDesertDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Existence Check Error: " + e.getMessage());
+            System.out.println("Existence Check Error2: " + e.getMessage());
         }
         return false;
     }

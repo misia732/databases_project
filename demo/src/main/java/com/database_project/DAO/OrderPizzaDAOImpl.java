@@ -116,7 +116,7 @@ public class OrderPizzaDAOImpl implements OrderPizzaDAO {
 
     @Override
     public List<Pizza> listPizzas(int orderID) {
-        String query = "SELECT pizza.ID, pizza.name" +
+        String query = "SELECT pizza.ID, pizza.name " +
                     "FROM pizza " +
                     "JOIN orderPizza ON pizza.ID = orderPizza.pizzaID " +
                     "WHERE orderPizza.orderID = ?";

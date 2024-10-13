@@ -1,7 +1,7 @@
 package com.database_project.entity;
 
 public class DeliveryPersonnel {
-    private int ID;
+    private Integer ID;
     private String firstName;
     private String lastName;
     private String postalcode;

@@ -155,10 +155,14 @@ public class PizzaDAOImpl implements PizzaDAO {
 
     @Override
     public List<Ingredient> listIngredients(int pizzaID) {
+        if(!pizzaExistsByID(pizzaID)){
+            System.out.println("Pizza does not exist.");
+            return null;
+        }
         List<Ingredient> ingredients = new ArrayList<>();
         String query = "SELECT ingredient.ID, ingredient.name, ingredient.price, ingredient.isVegeterian, ingredient.isVegan FROM ingredient"
-                    + "JOIN pizzaIngredient ON ingredient.ID = pizzaIngredient.ingredientID "
-                    + "WHERE pizzaIngredient.pizzaID = ?";
+                    + " JOIN pizzaIngredient ON ingredient.ID = pizzaIngredient.ingredientID "
+                    + " WHERE pizzaIngredient.pizzaID = ?";
                     
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, pizzaID);

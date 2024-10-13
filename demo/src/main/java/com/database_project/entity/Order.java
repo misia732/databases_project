@@ -9,15 +9,15 @@ public class Order {
     private int customerID;
     private LocalDateTime placementTime;
     private String status;
-    private int deliveryPersonnelID;
-    private double price;
+    private Integer deliveryPersonnelID;
+    private Double price;
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 
 
-    public void setPrice(double price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 
@@ -55,10 +55,10 @@ public class Order {
     public void setStatus(String status) {
         this.status = status;
     }
-    public int getDeliveryPersonnelID() {
+    public Integer getDeliveryPersonnelID() {
         return deliveryPersonnelID;
     }
-    public void setDeliveryPersonnelID(int deliveryPersonelID) {
+    public void setDeliveryPersonnelID(Integer deliveryPersonelID) {
         this.deliveryPersonnelID = deliveryPersonelID;
     }
 

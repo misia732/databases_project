@@ -17,9 +17,9 @@ public class CustomerDAOImpl implements CustomerDAO {
     }
 
     @Override
-    public void insert(Customer customer) {
+    public int insert(Customer customer) {
         if(!customerExistsByEmail(customer.getEmail())){
-            String query = "INSERT INTO customer (firstName, lastName, gender, birthDate, phoneNumber, email, address, postalCode, city, pizzaCount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String query = "INSERT INTO customer (firstName, lastName, gender, birthDate, phoneNumber, email, password, address, postalCode, city, pizzaCount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             try (PreparedStatement pstmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
                 pstmt.setString(1, customer.getFirstName());
                 pstmt.setString(2, customer.getLastName());
@@ -28,44 +28,50 @@ public class CustomerDAOImpl implements CustomerDAO {
                 pstmt.setString(5, customer.getPhoneNumber());
                 pstmt.setString(6, customer.getEmail());
                 pstmt.setString(7, customer.getPassword());
-                pstmt.setString(9, customer.getAddress());
-                pstmt.setString(10, customer.getPostalcode());
-                pstmt.setString(11, customer.getCity());
-                pstmt.setInt(12, customer.getPizzaCount());
+                pstmt.setString(8, customer.getAddress());
+                pstmt.setString(9, customer.getPostalcode());
+                pstmt.setString(10, customer.getCity());
+                pstmt.setInt(11, customer.getPizzaCount());
 
                 int affectedRows = pstmt.executeUpdate();
                 if (affectedRows > 0) {
-                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        int id = generatedKeys.getInt(1);
-                        customer.setID(id);
-                    }
+                    try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                        if (generatedKeys.next()) {
+                            int id = generatedKeys.getInt(1);
+                            customer.setID(id);
+                            System.out.println("customer id=" + id);
+                            return id;
+                        }
                     }
                 }
-                System.out.println("Customer: " + customer.toString() + " inserted");
+                System.out.println("Customer inserted: " + customer.toString());
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
             }
-            return;
         }
         else{
-            System.out.println("Customer already exist.");
+            System.out.println("Customer already exist." + customer.toString());
         }
+        return -1;
 
     }
 
     @Override
     public void delete(Customer customer){
         if(customerExistsByEmail(customer.getEmail())){
-
-        String query = "DELETE FROM customer WHERE ID = ?;";
-        try (PreparedStatement pstmt = conn.prepareStatement(query)){
-            pstmt.setInt(1, customer.getID());
-            pstmt.executeUpdate();
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        return;
+            String query = "DELETE FROM customer WHERE ID = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(query)){
+                pstmt.setInt(1, customer.getID());
+            int affectedRows = pstmt.executeUpdate();  // Returns the number of rows affected
+            
+            if (affectedRows > 0) {
+                System.out.println("Customer deleted: " + customer.toString());
+            } else {
+                System.out.println("No customer deleted. Check if the ID exists.");
+            }
+            } catch (SQLException e){
+                System.out.println(e.getMessage());
+            }
         }
         else{
             System.out.println("Customer does not exist.");
@@ -84,10 +90,11 @@ public class CustomerDAOImpl implements CustomerDAO {
             pstmt.setString(5, customer.getPhoneNumber());
             pstmt.setString(6, customer.getEmail());
             pstmt.setString(7, customer.getPassword());
-            pstmt.setString(9, customer.getAddress());
-            pstmt.setString(10, customer.getPostalcode());
-            pstmt.setString(11, customer.getCity());
-            pstmt.setInt(12, customer.getPizzaCount());
+            pstmt.setString(8, customer.getAddress());
+            pstmt.setString(9, customer.getPostalcode());
+            pstmt.setString(10, customer.getCity());
+            pstmt.setInt(11, customer.getPizzaCount());
+            pstmt.setString(12, customer.getEmail());
 
             pstmt.executeUpdate();
         } catch (SQLException e){
@@ -102,22 +109,23 @@ public class CustomerDAOImpl implements CustomerDAO {
             Customer customer = null;
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                 pstmt.setString(1, email);
-
                 try (ResultSet rs = pstmt.executeQuery()) {
-                    if (rs.next()) {
-                        customer.setID(rs.getInt("ID"));
-                        customer.setFirstName(rs.getString("firstName"));
-                        customer.setLastName(rs.getString("lastName"));
-                        customer.setGender(rs.getString("gender"));
-                        customer.setBirthDate(rs.getDate("birthDate"));
-                        customer.setPhoneNumber(rs.getString("phoneNumber"));
-                        customer.setEmail(rs.getString("email"));
-                        customer.setPassword(rs.getString("password"));
-                        customer.setAddress(rs.getString("phoneNumber"));
-                        customer.setPostalcode(rs.getString("postalCode"));
-                        customer.setCity(rs.getString("city"));
-                        customer.setPizzaCount(rs.getInt("pizzaCount"));
-                    }
+                        if (rs.next()) {
+                            customer = new Customer(
+                                rs.getString("firstName"),
+                                rs.getString("lastName"),
+                                rs.getString("gender"),
+                                rs.getDate("birthDate"),
+                                rs.getString("phoneNumber"),
+                                rs.getString("email"),
+                                rs.getString("password"),
+                                rs.getString("address"),
+                                rs.getString("postalCode"),
+                                rs.getString("city"),
+                                rs.getInt("pizzaCount")
+                            );
+                            customer.setID(rs.getInt("ID"));
+                        }
                 }
             } catch (SQLException e){
                 System.out.println(e.getMessage());
@@ -138,18 +146,20 @@ public class CustomerDAOImpl implements CustomerDAO {
 
                 try (ResultSet rs = pstmt.executeQuery()) {
                     if (rs.next()) {
+                        customer = new Customer(
+                        rs.getString("firstName"),
+                        rs.getString("lastName"),
+                        rs.getString("gender"),
+                        rs.getDate("birthDate"),
+                        rs.getString("phoneNumber"),
+                        rs.getString("email"),
+                        rs.getString("password"),
+                        rs.getString("address"),
+                        rs.getString("postalCode"),
+                        rs.getString("city"),
+                        rs.getInt("pizzaCount")
+                    );
                         customer.setID(rs.getInt("ID"));
-                        customer.setFirstName(rs.getString("firstName"));
-                        customer.setLastName(rs.getString("lastName"));
-                        customer.setGender(rs.getString("gender"));
-                        customer.setBirthDate(rs.getDate("birthDate"));
-                        customer.setPhoneNumber(rs.getString("phoneNumber"));
-                        customer.setEmail(rs.getString("email"));
-                        customer.setPassword(rs.getString("password"));
-                        customer.setAddress(rs.getString("phoneNumber"));
-                        customer.setPostalcode(rs.getString("postalCode"));
-                        customer.setCity(rs.getString("city"));
-                        customer.setPizzaCount(rs.getInt("pizzaCount"));
                     }
                 }
             } catch (SQLException e){
