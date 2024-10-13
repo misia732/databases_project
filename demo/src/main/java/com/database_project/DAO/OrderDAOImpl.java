@@ -54,11 +54,10 @@ public class OrderDAOImpl implements OrderDAO {
                     }
                 }
             }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
         }
-        return -1;
-    }
+	return -1;
+}
+
 
     @Override
     public void delete(Order order) {

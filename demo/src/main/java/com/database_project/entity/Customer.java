@@ -19,6 +19,10 @@ public class Customer{
         this.password = password;
     }
 
+    public Customer() {
+        
+    }
+
     private int ID;
     private String firstName;
     private String lastName;

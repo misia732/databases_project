@@ -1,6 +1,20 @@
 package com.database_project.GUI;
 
 import javax.swing.*;
+
+import com.database_project.DAO.OrderDAOImpl;
+import com.database_project.DAO.OrderPizzaDAOImpl;
+import com.database_project.DAO.PizzaDAOImpl;
+import com.database_project.config.DatabaseConfig;
+import com.database_project.entity.OrderPizza;
+import com.database_project.entity.Pizza;
+import com.database_project.entity.Order;
+
+import java.sql.Connection;
+import java.time.*;
+import java.sql.SQLException;
+
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,13 +25,16 @@ public class PizzaOrderingApp extends JFrame {
     private JTextArea orderArea;
     private double totalPrice = 0.0;
     private HashMap<String, Integer> orderedPizzas;
+    private HashMap<String, Integer> orderedDessertAndDrink;
+
 
     private static final HashMap<String, Double> ingredientPrices = new HashMap<>();
     private static final Map<String, String[]> pizzaIngredients = new HashMap<>();
 
     public PizzaOrderingApp() {
 
-        orderedPizzas = new HashMap<>(); // to keep track of pizzas and their quantities
+        orderedPizzas = new HashMap<>();
+        orderedDessertAndDrink = new HashMap<>();
 
         // Set up the frame
         setTitle("Pizza Ordering System");
@@ -109,11 +126,6 @@ public class PizzaOrderingApp extends JFrame {
         ingredientPrices.put("Rucola", 0.50);
         ingredientPrices.put("Feta cheese", 1.00);
         ingredientPrices.put("Truffle oil", 1.20);
-        ingredientPrices.put("Vegan mozzarella", 1.20);
-        ingredientPrices.put("Gorgonzola", 1.20);
-        ingredientPrices.put("Parmesan", 0.9);
-        ingredientPrices.put("Spinach", 0.5);
-
 
 
         // Calculate the price for each pizza
@@ -211,6 +223,7 @@ public class PizzaOrderingApp extends JFrame {
 
         // Add the orderPanel to the main layout
         add(orderPanel, BorderLayout.SOUTH); // This should be the only addition of orderPanel
+        setVisible(true);
 
     }
 
@@ -279,68 +292,85 @@ public class PizzaOrderingApp extends JFrame {
     }
 
     private class PizzaOrderAction implements ActionListener {
-        public String pizzaName;
-        public double pizzaPrice;
+        public String itemName;
+        public double itemPrice;
         public boolean isAdd;
-
-
-        public PizzaOrderAction(String pizzaName, double pizzaPrice, boolean isAdd) {
-            this.pizzaName = pizzaName;
-            this.pizzaPrice = pizzaPrice;
+    
+        public PizzaOrderAction(String itemName, double itemPrice, boolean isAdd) {
+            this.itemName = itemName;
+            this.itemPrice = itemPrice;
             this.isAdd = isAdd;
         }
-
+    
         @Override
         public void actionPerformed(ActionEvent e) {
-            // Manage pizza quantities
-            int quantity = orderedPizzas.getOrDefault(pizzaName, 0);
-
+            int quantity;
+    
+            // Check if the item is a pizza, drink, or dessert
+            if (pizzaIngredients.containsKey(itemName)) {
+                // It's a pizza
+                quantity = orderedPizzas.getOrDefault(itemName, 0);
+                handleItemOrder(orderedPizzas, itemName, itemPrice, quantity);
+            } else if (calculateDessertPrice(itemName) > 0) {
+                // It's a dessert or a drink
+                quantity = orderedDessertAndDrink.getOrDefault(itemName, 0);
+                handleItemOrder(orderedDessertAndDrink, itemName, calculateDessertPrice(itemName), quantity);
+            } 
+        }
+    
+        private void handleItemOrder(Map<String, Integer> orderMap, String itemName, double itemPrice, int quantity) {
             if (isAdd) {
-                // Add pizza to the order
+                // Add the item to the order
                 quantity++;
-                orderedPizzas.put(pizzaName, quantity);
-                totalPrice += pizzaPrice; // Update total price
-                orderArea.append("Added: " + pizzaName + " (x" + quantity + ") - $" + (pizzaPrice * quantity) + "\n");
+                System.out.println(itemName);
+                System.out.println(itemPrice);
+                orderMap.put(itemName, quantity);
+                totalPrice += itemPrice;
+                orderArea.append("Added: " + itemName + " (x" + quantity + ") - $" + (itemPrice * quantity) + "\n");
             } else if (quantity > 0) {
-                // Remove pizza from the order if quantity is greater than zero
+                // Remove the item from the order
                 quantity--;
                 if (quantity == 0) {
-                    // If quantity reaches zero, remove the pizza from the ordered list
-                    orderedPizzas.remove(pizzaName);
-                    totalPrice -= pizzaPrice; // Update total price when pizza is removed
-                    orderArea.append("Removed: " + pizzaName + " (x" + quantity + ") - $" + (pizzaPrice * quantity) + "\n");
+                    orderMap.remove(itemName);
                 } else {
-                    // Update the quantity in the order
-                    orderedPizzas.put(pizzaName, quantity);
-                    totalPrice -= pizzaPrice; // Update total price
-                    orderArea.append("Removed: " + pizzaName + " (x" + quantity + ") - $" + (pizzaPrice * quantity) + "\n");
+                    orderMap.put(itemName, quantity);
                 }
+                totalPrice -= itemPrice;
+                orderArea.append("Removed: " + itemName + " (x" + quantity + ") - $" + (itemPrice * quantity) + "\n");
             }
-
+    
             // Update total price
             orderArea.append("Total: $" + String.format("%.2f", totalPrice) + "\n\n");
         }
-
-
     }
+    
 
     public void updateOrderSummary() {
         // Clear the orderArea before updating
         orderArea.setText("");
-
+    
         // Display all pizzas in the current order with quantities
+        orderArea.append("Pizzas:\n");
         for (Map.Entry<String, Integer> entry : orderedPizzas.entrySet()) {
             String name = entry.getKey();
             int quantity = entry.getValue();
             double totalItemPrice = calculatePizzaPrice(name) * quantity;
-            if (totalItemPrice != 0) {
-                orderArea.append(name + " (x" + quantity + ") - $" + String.format("%.2f", totalItemPrice) + "\n");
-            }
+            orderArea.append(name + " (x" + quantity + ") - $" + String.format("%.2f", totalItemPrice) + "\n");
         }
-
+    
+        // Display all drinks and desserts in the current order with quantities
+        orderArea.append("\nDrinks and desserts:\n");
+        for (Map.Entry<String, Integer> entry : orderedDessertAndDrink.entrySet()) {
+            String name = entry.getKey();
+            int quantity = entry.getValue();
+            double totalItemPrice = calculateDessertPrice(name) * quantity;
+            orderArea.append(name + " (x" + quantity + ") - $" + String.format("%.2f", totalItemPrice) + "\n");
+        }
+    
         // Update total price
         orderArea.append("\nTotal: $" + String.format("%.2f", totalPrice) + "\n\n");
     }
+    
 
     private class IngredientsAction implements ActionListener {
         private String pizzaName;
@@ -414,113 +444,75 @@ public class PizzaOrderingApp extends JFrame {
         summaryArea.setText(orderArea.getText());
         summaryFrame.add(new JScrollPane(summaryArea));
 
-        // Sign In Button
-        JButton signInButton = new JButton("Sign in");
-        signInButton.addActionListener(e -> {
-            // Open new window for Sign-In
-            JFrame signInFrame = new JFrame("Sign In");
-            signInFrame.setSize(800, 600);
-            signInFrame.setLayout(new GridLayout(0, 2));  // Dynamic layout
+        // "Pay and Order" Button
+        JButton payButton = new JButton("Pay and Order");
+        payButton.addActionListener(e -> {
 
-            signInFrame.add(new JLabel("First Name:"));
-            JTextField firstNameField = new JTextField();
-            signInFrame.add(firstNameField);
+            // Example of how to handle inserting the order into the database
+            try (Connection conn = DatabaseConfig.getConnection()) {
+            
+                // Assuming you have a 'loggedInCustomer' stored after the login
+                if (FirstScreen.loggedInCustomer != null) {
+                    System.out.println("Customer is not null");
+                    OrderDAOImpl orderDAO = new OrderDAOImpl(conn);
+                    OrderPizzaDAOImpl orderPizzaDAO = new OrderPizzaDAOImpl(conn);
 
-            signInFrame.add(new JLabel("Last Name:"));
-            JTextField lastNameField = new JTextField();
-            signInFrame.add(lastNameField);
+                    // Create an Order object
+                    LocalDateTime now = LocalDateTime.now();
+                    Order newOrder = new Order(
+                        FirstScreen.loggedInCustomer.getID(), // Customer ID from the logged-in customer
+                        now,
+                        "being prepared",  // Status of the order
+                        1,  // Assuming deliveryPersonnelID is 1 for simplicity; change as needed
+                        totalPrice
+                    );
 
-            signInFrame.add(new JLabel("Gender:"));
-            String[] genders = {"Select", "Female", "Male"};
-            JComboBox<String> genderComboBox = new JComboBox<>(genders);
-            signInFrame.add(genderComboBox);
+                    // Insert the new order into the database
+                    System.out.println("Inserted order into the database");
+                    orderDAO.insert(newOrder);
 
-            signInFrame.add(new JLabel("Birth Date (YYYY-MM-DD):"));
-            JTextField birthDateField = new JTextField();
-            signInFrame.add(birthDateField);
+                    // For each pizza in the order, insert the corresponding OrderPizza record
+                    for (Map.Entry<String, Integer> entry : orderedPizzas.entrySet()) {
+                        String pizzaName = entry.getKey();  // Pizza name
+                        int quantity = entry.getValue();    // Quantity
+                    
+                        PizzaDAOImpl pizzaDAO = new PizzaDAOImpl(conn);
+        
+                        Pizza pizza = pizzaDAO.findByName(pizzaName);
+                        int pizzaID = pizza.getID(); // Assuming you have a Pizza object named pizza
 
-            signInFrame.add(new JLabel("Phone Number:"));
-            JTextField phoneField = new JTextField();
-            signInFrame.add(phoneField);
+                    
+                        OrderPizza orderPizza = new OrderPizza(
+                            newOrder.getID(),  // Order ID from the newly inserted order
+                            pizzaID,           // Pizza ID from the pizza object
+                            quantity           // The actual quantity from the HashMap
+                        );
+                    
+                        System.out.println("Pizza inserted");
+                        // Insert into the orderPizza table
+                        orderPizzaDAO.insert(orderPizza);
+                    }
+                    
 
-            signInFrame.add(new JLabel("Email:"));
-            JTextField emailField = new JTextField();
-            signInFrame.add(emailField);
+                    // Close the summary frame
+                    summaryFrame.dispose();
+                } else {
+                    JOptionPane.showMessageDialog(summaryFrame, "No customer is logged in!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace(); // Handle SQL exceptions
+                JOptionPane.showMessageDialog(summaryFrame, "Error: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            }
 
-            signInFrame.add(new JLabel("Address:"));
-            JTextField addressField = new JTextField();
-            signInFrame.add(addressField);
+            // Implement payment processing logic here
+            JOptionPane.showMessageDialog(summaryFrame, 
+                "Payment processed! Your order is being prepared. You have 10 minutes to cancel the order.", 
+                "Order Confirmation", JOptionPane.INFORMATION_MESSAGE);
 
-            signInFrame.add(new JLabel("Postal Code:"));
-            JTextField postalCodeField = new JTextField();
-            signInFrame.add(postalCodeField);
-
-            signInFrame.add(new JLabel("City:"));
-            JTextField cityField = new JTextField();
-            signInFrame.add(cityField);
-
-            // Submit Button after filling the form
-            JButton submitButton = new JButton("Submit Order");
-            submitButton.addActionListener(submitEvent -> {
-                // Collect and process the form data, and display in order summary or save to database
-                StringBuilder orderData = new StringBuilder("Order Details:\n");
-                orderData.append(summaryArea.getText()).append("\n");
-                orderData.append("Customer Details:\n");
-                orderData.append("First Name: ").append(firstNameField.getText()).append("\n");
-                orderData.append("Last Name: ").append(lastNameField.getText()).append("\n");
-                orderData.append("Gender: ").append(genderComboBox.getSelectedItem()).append("\n");
-                orderData.append("Birth Date: ").append(birthDateField.getText()).append("\n");
-                orderData.append("Phone Number: ").append(phoneField.getText()).append("\n");
-                orderData.append("Email: ").append(emailField.getText()).append("\n");
-                orderData.append("Address: ").append(addressField.getText()).append("\n");
-                orderData.append("Postal Code: ").append(postalCodeField.getText()).append("\n");
-                orderData.append("City: ").append(cityField.getText()).append("\n");
-
-                // Display the collected data in a dialog box
-                JOptionPane.showMessageDialog(signInFrame, orderData.toString(), "Order is on its way!", JOptionPane.INFORMATION_MESSAGE);
-                signInFrame.dispose();  // Close the sign-in frame after submitting
-            });
-            signInFrame.add(submitButton);
-
-            signInFrame.setVisible(true);
+            
         });
-        summaryFrame.add(signInButton);
 
-        // Log In Button
-        JButton logInButton = new JButton("Log in");
-        logInButton.addActionListener(e -> {
-            // Open new window for Log-In
-            JFrame logInFrame = new JFrame("Log In");
-            logInFrame.setSize(800, 200);
-            logInFrame.setLayout(new GridLayout(0, 2));  // Dynamic layout
-
-            logInFrame.add(new JLabel("Email address:"));
-            JTextField emailField = new JTextField();
-            logInFrame.add(emailField);
-
-            logInFrame.add(new JLabel("Password:"));
-            JPasswordField passwordField = new JPasswordField();
-            logInFrame.add(passwordField);
-
-            // Submit Button for login
-            JButton submitButton = new JButton("Submit Order");
-            submitButton.addActionListener(submitEvent -> {
-                // Collect and process the login data, then submit the order
-                StringBuilder orderData = new StringBuilder("Order Details:\n");
-                orderData.append(summaryArea.getText()).append("\n");
-                orderData.append("Login Details:\n");
-                orderData.append("Email: ").append(emailField.getText()).append("\n");
-
-                // Display the collected data in a dialog box
-                JOptionPane.showMessageDialog(logInFrame, orderData.toString(), "Order is on its way!", JOptionPane.INFORMATION_MESSAGE);
-                logInFrame.dispose();  // Close the login frame after submitting
-            });
-            logInFrame.add(submitButton);
-
-            logInFrame.setVisible(true);
-        });
-        summaryFrame.add(logInButton);
-
+        summaryFrame.add(payButton);
         summaryFrame.setVisible(true);
     }
 
@@ -568,15 +560,34 @@ public class PizzaOrderingApp extends JFrame {
         }
     }
 
-
-    public static void main(String[] args) {
-        // Start the GUI
-        SwingUtilities.invokeLater(() -> {
-            PizzaOrderingApp app = new PizzaOrderingApp();
-            app.setVisible(true);
-
-        });
+    public static double calculateDessertPrice(String dessertName) {
+        double dessertPrice = 0.0;
+    
+        switch (dessertName.toLowerCase()) {
+            case "tiramisu":
+                return 6;
+            case "cheesecake":
+                return 6.5;
+            case "chocolate lava cake":
+                return 7;
+            case "coca-cola":
+                return 2.5;
+            case "fresh orange juice":
+                return 3;
+            case "water":
+                return 1.5;
+            default:
+                System.out.println("Dessert not found.");
+                dessertPrice = 0.0; 
+                break;
+        }
+    
+        return dessertPrice;
     }
+
+
 }
+
+
 
 
