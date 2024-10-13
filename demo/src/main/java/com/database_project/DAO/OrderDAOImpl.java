@@ -27,36 +27,47 @@ public class OrderDAOImpl implements OrderDAO {
         String query = "INSERT INTO `order` (customerID, placementTime, status, deliveryPersonnelID, price) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setInt(1, order.getCustomerID());
-            if((order.getPlacementTime()) == null)
-                pstmt.setNull(2, java.sql.Types.NULL);
+    
+            // Set placementTime
+            if (order.getPlacementTime() == null)
+                pstmt.setNull(2, java.sql.Types.TIMESTAMP);
             else
                 pstmt.setTimestamp(2, Timestamp.valueOf(order.getPlacementTime()));
-
+    
+            // Set status
             pstmt.setString(3, order.getStatus());
-
-            if(order.getDeliveryPersonnelID()==null)
-                pstmt.setNull(4, java.sql.Types.NULL);
+    
+            // Set deliveryPersonnelID
+            if (order.getDeliveryPersonnelID() == null)
+                pstmt.setNull(4, java.sql.Types.INTEGER);
             else
                 pstmt.setInt(4, order.getDeliveryPersonnelID());
-
-            if(order.getPrice()==null)
-                pstmt.setNull(5, java.sql.Types.NULL);
+    
+            // Set price
+            if (order.getPrice() == null)
+                pstmt.setNull(5, java.sql.Types.DOUBLE);
             else
-            pstmt.setDouble(5, order.getPrice());
-
+                pstmt.setDouble(5, order.getPrice());
+    
             int affectedRows = pstmt.executeUpdate();
+    
+            // Check if rows were affected and get the generated key
             if (affectedRows > 0) {
                 try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
                         int id = generatedKeys.getInt(1);
-                        order.setID(id);
+                        order.setID(id);  
                         return id;
                     }
                 }
             }
+        } catch (SQLException e) {
+            e.printStackTrace(); 
         }
-	return -1;
-}
+        return -1;
+    }
+    
+
 
 
     @Override
