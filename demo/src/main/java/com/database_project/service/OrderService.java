@@ -220,4 +220,11 @@ public class OrderService {
             return false;
         }
     }
+
+    // Setter for deliveryPersonnelId
+    public void setDeliveryPersonnelId(int deliveryPersonnelId) {
+        this.deliveryService = deliveryService;
+    }
+
+
 }

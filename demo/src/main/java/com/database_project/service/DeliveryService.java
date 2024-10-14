@@ -16,10 +16,10 @@ import com.database_project.entity.*;
 public class DeliveryService {
 
     private Connection conn;
-    private DeliveryPersonnelDAO deliveryPersonnelDAO;
-    private OrderDAO orderDAO;
-    private OrderPizzaDAO orderPizzaDAO;
-    private CustomerDAO customerDAO;
+    private static DeliveryPersonnelDAO deliveryPersonnelDAO;
+    private static OrderDAO orderDAO;
+    private static OrderPizzaDAO orderPizzaDAO;
+    private static CustomerDAO customerDAO;
 
     public DeliveryService(Connection conn) {
         this.conn = conn;
@@ -40,13 +40,13 @@ public class DeliveryService {
         orderDAO.update(order);
     }
 
-    public void assignDeliveryPersonnel(Order order) throws SQLException {
+    public static int assignDeliveryPersonnel(Order order) throws SQLException {
         DeliveryPersonnel availablePersonnel = deliveryPersonnelDAO.findAvailablePersonnel();
         Customer customer = customerDAO.findByID(order.getCustomerID());
 
         if (availablePersonnel == null) {
             System.out.println("No delivery personnel available.");
-            return;
+            return -1;
         }
 
         order.setDeliveryPersonnelID(availablePersonnel.getID());
@@ -76,9 +76,10 @@ public class DeliveryService {
 
         availablePersonnel.setStatus("busy");
         deliveryPersonnelDAO.update(availablePersonnel);
+        return availablePersonnel.getID();
     }
 
-    private int numberOfPizzas(Order order){
+    private static int numberOfPizzas(Order order){
         List<OrderPizza> orderPizzas = orderPizzaDAO.findByOrderID(order.getID());
         int numberOfPizzas = 0;
         for(OrderPizza orderPizza : orderPizzas){

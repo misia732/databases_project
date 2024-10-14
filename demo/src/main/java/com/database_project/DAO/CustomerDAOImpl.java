@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.database_project.entity.Customer;
 
@@ -201,5 +203,44 @@ public class CustomerDAOImpl implements CustomerDAO {
             System.out.println(e.getMessage());
         }
         return false;
+    }
+
+    // Fetch distinct postal codes
+    public List<String> getDistinctPostalCodes() throws SQLException {
+        List<String> postalCodes = new ArrayList<>();
+        String query = "SELECT DISTINCT postalCode FROM customer";
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                postalCodes.add(rs.getString("postalCode"));
+            }
+        }
+        return postalCodes;
+    }
+
+    // Fetch distinct cities
+    public List<String> getDistinctCities() throws SQLException {
+        List<String> cities = new ArrayList<>();
+        String query = "SELECT DISTINCT city FROM customer";
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                cities.add(rs.getString("city"));
+            }
+        }
+        return cities;
+    }
+
+    // Fetch distinct genders
+    public List<String> getDistinctGenders() throws SQLException {
+        List<String> genders = new ArrayList<>();
+        String query = "SELECT DISTINCT gender FROM customer";
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                genders.add(rs.getString("gender"));
+            }
+        }
+        return genders;
     }
 }

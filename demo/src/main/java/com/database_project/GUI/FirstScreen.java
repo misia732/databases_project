@@ -156,22 +156,39 @@ public class FirstScreen {
                 String email = emailField.getText();
                 String password = new String(passwordField.getPassword()); // Get password
 
-                Customer customer = customerDAO.findByEmail(email); // Find customer by email
-
-                if (customer != null && customer.getPassword().equals(password)) {
-                    System.out.println("Customer found");
-                    loggedInCustomer = customer;
-                    new PizzaOrderingApp(); // Open the PizzaOrderingApp
-                    logInFrame.dispose(); // Close the login frame
+                // Check if the email is "admin"
+                if (email.equals("admin")) {
+                    // Find admin user by email
+                    Customer adminCustomer = customerDAO.findByEmail(email);
+                    if (adminCustomer != null && adminCustomer.getPassword().equals(password)) {
+                        // If admin email and password are correct, open RestaurantApp
+                        new AdminScreen(); 
+                        logInFrame.dispose(); 
+                    } else {
+                        // Invalid admin credentials
+                        JOptionPane.showMessageDialog(logInFrame, "Invalid admin email or password", "Login Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 } else {
-                    JOptionPane.showMessageDialog(logInFrame, "Invalid email or password", "Login Error", JOptionPane.ERROR_MESSAGE);
+                    // For regular customers
+                    Customer customer = customerDAO.findByEmail(email); // Find customer by email
+                    if (customer != null && customer.getPassword().equals(password)) {
+                        System.out.println("Customer found");
+                        loggedInCustomer = customer;
+                        new PizzaOrderingApp(); // Open the PizzaOrderingApp
+                        logInFrame.dispose(); // Close the login frame
+                    } else {
+                        // Invalid customer credentials
+                        JOptionPane.showMessageDialog(logInFrame, "Invalid email or password", "Login Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             } catch (SQLException e) {
                 e.printStackTrace(); // Handle exception
                 JOptionPane.showMessageDialog(logInFrame, "Error: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+
         logInFrame.add(submitButton);
+
 
         logInFrame.setVisible(true);
     }

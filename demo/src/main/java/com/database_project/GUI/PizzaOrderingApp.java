@@ -2,12 +2,14 @@ package com.database_project.GUI;
 
 import javax.swing.*;
 
+import com.database_project.DAO.CustomerDAOImpl;
 import com.database_project.DAO.OrderDAOImpl;
 import com.database_project.DAO.OrderPizzaDAOImpl;
 import com.database_project.DAO.PizzaDAOImpl;
 import com.database_project.config.DatabaseConfig;
 import com.database_project.entity.OrderPizza;
 import com.database_project.entity.Pizza;
+import com.database_project.service.DeliveryService;
 import com.database_project.entity.Order;
 
 import java.sql.Connection;
@@ -344,7 +346,6 @@ public class PizzaOrderingApp extends JFrame {
         }
     }
     
-
     public void updateOrderSummary() {
         // Clear the orderArea before updating
         orderArea.setText("");
@@ -371,7 +372,6 @@ public class PizzaOrderingApp extends JFrame {
         orderArea.append("\nTotal: $" + String.format("%.2f", totalPrice) + "\n\n");
     }
     
-
     private class IngredientsAction implements ActionListener {
         private String pizzaName;
 
@@ -453,7 +453,7 @@ public class PizzaOrderingApp extends JFrame {
             
                 // Assuming you have a 'loggedInCustomer' stored after the login
                 if (FirstScreen.loggedInCustomer != null) {
-                    System.out.println("Customer is not null");
+                    System.out.println("Customer exists in a database");
                     OrderDAOImpl orderDAO = new OrderDAOImpl(conn);
                     OrderPizzaDAOImpl orderPizzaDAO = new OrderPizzaDAOImpl(conn);
 
@@ -462,12 +462,13 @@ public class PizzaOrderingApp extends JFrame {
                     Order newOrder = new Order(
                         FirstScreen.loggedInCustomer.getID(), // Customer ID from the logged-in customer
                         now,
-                        "being prepared",  // Status of the order
-                        1,  // Assuming deliveryPersonnelID is 1 for simplicity; change as needed
+                        "being prepared",  // hardcoded for now
+                        1,  // placeholder for now
                         totalPrice
                     );
+    
 
-                    // Insert the new order into the database
+                    // inserting the order to the database
                     System.out.println("Inserted order into the database");
                     orderDAO.insert(newOrder);
 
@@ -487,6 +488,12 @@ public class PizzaOrderingApp extends JFrame {
                             pizzaID,           // Pizza ID from the pizza object
                             quantity           // The actual quantity from the HashMap
                         );
+
+                        int currentPizzaCount = FirstScreen.loggedInCustomer.getPizzaCount();
+                        currentPizzaCount += quantity;
+                        System.out.println(currentPizzaCount);
+                        FirstScreen.loggedInCustomer.setPizzaCount(currentPizzaCount);
+                        
                     
                         System.out.println("Pizza inserted");
                         // Insert into the orderPizza table
@@ -506,7 +513,7 @@ public class PizzaOrderingApp extends JFrame {
 
             // Implement payment processing logic here
             JOptionPane.showMessageDialog(summaryFrame, 
-                "Payment processed! Your order is being prepared. You have 10 minutes to cancel the order.", 
+                "Payment processed! Your order is being prepared. You have 5 minutes to cancel the order.", 
                 "Order Confirmation", JOptionPane.INFORMATION_MESSAGE);
 
             
@@ -515,7 +522,6 @@ public class PizzaOrderingApp extends JFrame {
         summaryFrame.add(payButton);
         summaryFrame.setVisible(true);
     }
-
 
     public static double calculatePizzaPrice(String pizzaName) {
         double ingredientCost = 0.0;
@@ -584,7 +590,6 @@ public class PizzaOrderingApp extends JFrame {
     
         return dessertPrice;
     }
-
 
 }
 
