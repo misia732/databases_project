@@ -71,10 +71,6 @@ public class OrderService {
             
         }
 
-        // 10% dicount if 10 pizzas ordered
-        if(customer.getPizzaCount()%10 == 0){
-            price *= 0.9;
-        }
 
         // if customer included discount code
         if(!discountCodeID.isEmpty()){
@@ -92,7 +88,16 @@ public class OrderService {
 
         // number of ordered pizzas
         int n = pizzasNumber(pizzas);
+        System.out.println("number of pizzas ordered: " + n);
         customer.setPizzaCount(n);
+
+        // 10% dicount if 10 pizzas ordered
+        if(customer.getPizzaCount()%10 == 0){
+            price *= 0.9;
+            
+            System.out.println(price);
+        }
+
         customerDAO.update(customer);
 
         LocalDateTime now = LocalDateTime.now();

@@ -59,30 +59,26 @@ public class OrderTracking extends JFrame {
             try (Connection conn2 = DatabaseConfig.getConnection()) {
                 OrderService orderService = new OrderService(conn2);
                 OrderDAOImpl orderDAOImpl2 = new OrderDAOImpl(conn2);
-            
-                orderService.cancelOrder(orderID);
-                boolean isCanceled = orderService.cancelOrder(orderID);
-
-                if (isCanceled) {
-                    JOptionPane.showMessageDialog(OrderTracking.this, "Order canceled.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        
+                // Check if the order exists before attempting to cancel
+                Order order = orderDAOImpl2.findByID(orderID);
+                if (order == null) {
+                    JOptionPane.showMessageDialog(OrderTracking.this, "Order not found.", "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
-                    // If the order is not canceled, check the reason
-                    Order order = orderDAOImpl2.findByID(orderID); 
-                    System.out.println(orderID);
-                    if (order == null) {
-                        JOptionPane.showMessageDialog(OrderTracking.this, "Order not found.", "Error", JOptionPane.ERROR_MESSAGE);
+                    // Now attempt to cancel the order
+                    boolean isCanceled = orderService.cancelOrder(orderID);
+        
+                    if (isCanceled) {
+                        JOptionPane.showMessageDialog(OrderTracking.this, "Order canceled.", "Success", JOptionPane.INFORMATION_MESSAGE);
                     } else {
                         JOptionPane.showMessageDialog(OrderTracking.this, "Order cannot be canceled after 5 minutes.", "Error", JOptionPane.WARNING_MESSAGE);
                     }
-                
-
                 }
-
-
             } catch (SQLException e1) {
                 e1.printStackTrace();
             }
         });
+        
         
     
     
