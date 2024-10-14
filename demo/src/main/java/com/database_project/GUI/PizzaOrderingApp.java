@@ -354,8 +354,10 @@ public class PizzaOrderingApp extends JFrame {
     }
     
     public void updateOrderSummary() {
+
         // Clear the orderArea before updating
         orderArea.setText("");
+        
     
         // Display all pizzas in the current order with quantities
         orderArea.append("Pizzas:\n");
@@ -439,119 +441,86 @@ public class PizzaOrderingApp extends JFrame {
         JFrame summaryFrame = new JFrame("Order Summary");
         summaryFrame.setSize(800, 600);
         summaryFrame.setLayout(new GridLayout(0, 1));
-
+    
         // Summary Label
         JLabel summaryLabel = new JLabel("Summary of Your Order", JLabel.CENTER);
         summaryLabel.setFont(new Font("Times New Roman", Font.BOLD, 18));
         summaryFrame.add(summaryLabel);
-
+    
         // Order Details
         JTextArea summaryArea = new JTextArea();
         summaryArea.setEditable(false);
         updateOrderSummary();  // Update the order summary
         summaryArea.setText(orderArea.getText());
         summaryFrame.add(new JScrollPane(summaryArea));
-
+    
         // "Pay and Order" Button
         JButton payButton = new JButton("Pay and Order");
         payButton.addActionListener(e -> {
-
             // Example of how to handle inserting the order into the database
             try (Connection conn = DatabaseConfig.getConnection()) {
-            
                 // Assuming you have a 'loggedInCustomer' stored after the login
                 if (FirstScreen.loggedInCustomer != null) {
                     System.out.println("Customer exists in a database");
-
-
+    
                     OrderDAOImpl orderDAO = new OrderDAOImpl(conn);
                     OrderPizzaDAOImpl orderPizzaDAO = new OrderPizzaDAOImpl(conn);
                     OrderDrinkAndDesertDAOImpl orderDrinkDAO = new OrderDrinkAndDesertDAOImpl(conn);
-
-
                     OrderService orderService = new OrderService(conn);
                     int orderID = orderService.initializeNewOrder(FirstScreen.loggedInCustomer.getID());
-
-
-                    // Create an Order object
-                    // LocalDateTime now = LocalDateTime.now();
-                    // Order newOrder = new Order(
-                    //     FirstScreen.loggedInCustomer.getID(), // Customer ID from the logged-in customer
-                    //     now,
-                    //     "being prepared",  // hardcoded for now
-                    //     1,  // placeholder for now
-                    //     totalPrice
-                    // );
     
-
-                    // inserting the order to the database
-                    // System.out.println("Inserted order into the database");
-                    // orderDAO.insert(newOrder);
-
                     List<OrderPizza> orderPizzas = new ArrayList<>();
-
+    
                     // For each pizza in the order, insert the corresponding OrderPizza record
                     for (Map.Entry<String, Integer> entry : orderedPizzas.entrySet()) {
-                        String pizzaName = entry.getKey();  // Pizza name
-                        int quantity = entry.getValue();    // Quantity
-                    
+                        String pizzaName = entry.getKey();
+                        int quantity = entry.getValue();
+    
                         PizzaDAOImpl pizzaDAO = new PizzaDAOImpl(conn);
-        
                         Pizza pizza = pizzaDAO.findByName(pizzaName);
                         int pizzaID = pizza.getID(); // Assuming you have a Pizza object named pizza
-
-                    
+    
                         OrderPizza orderPizza = new OrderPizza(
-                            orderID,            // Order ID from the newly inserted order
-                            pizzaID,           // Pizza ID from the pizza object
-                            quantity           // The actual quantity from the HashMap
+                            orderID,            
+                            pizzaID,           
+                            quantity           
                         );
-
+    
                         orderPizzas.add(orderPizza);
-
-                        int currentPizzaCount = FirstScreen.loggedInCustomer.getPizzaCount();
-                        currentPizzaCount += quantity;
-                        System.out.println(currentPizzaCount);
-                        FirstScreen.loggedInCustomer.setPizzaCount(currentPizzaCount);
-                        
-                    
-                        System.out.println("Pizza inserted");
-                        // Insert into the orderPizza table
                         orderPizzaDAO.insert(orderPizza);
                     }
-
-                    System.out.println(orderPizzas);
-
+    
                     List<OrderDrinkAndDesert> orderDrinks = new ArrayList<>();
-
+    
                     // Inserting Ordered Drinks
                     for (Map.Entry<String, Integer> entry : orderedDessertAndDrink.entrySet()) {
-                        String drinkName = entry.getKey();  // Drink name
-                        int quantity = entry.getValue();    // Quantity
-
+                        String drinkName = entry.getKey();
+                        int quantity = entry.getValue();
+    
                         DrinkAndDesertDAOImpl drinkDAO = new DrinkAndDesertDAOImpl(conn);
                         DrinkAndDesert drink = drinkDAO.findByName(drinkName);
                         int drinkID = drink.getID(); 
-
+    
                         OrderDrinkAndDesert orderDrink = new OrderDrinkAndDesert(
-                            orderID,  // Order ID from the newly inserted order
-                            drinkID,           // Drink ID from the drink object
-                            quantity           // The actual quantity from the HashMap
+                            orderID,  
+                            drinkID,           
+                            quantity           
                         );
-
+    
                         orderDrinks.add(orderDrink);
-
-                        System.out.println("Drink inserted");
-                        // Insert into the orderDrink table
                         orderDrinkDAO.insert(orderDrink);
-                        }
+                    }
+    
+                    // Get the total price from the placeOrder method
+                    double totalPrice = orderService.placeOrder(orderID, orderPizzas, orderDrinks, getName());
+                    String discounts = orderService.getAppliedDiscounts(FirstScreen.loggedInCustomer.getID(), orderPizzas, orderDrinks, getName());
 
-                        System.out.println(orderDrinks);
+                    // Add the total price and discounts to the order summary
+                    orderArea.append(discounts);  // Show applied discounts
+                    orderArea.append("\nTotal: $" + String.format("%.2f", totalPrice) + "\n\n");
+                    summaryArea.setText(orderArea.getText());  // Update the displayed summary area
 
-                        orderService.placeOrder(orderID, orderPizzas, orderDrinks, getName());
-
-
-
+    
                     // Close the summary frame
                     summaryFrame.dispose();
                 } else {
@@ -561,17 +530,16 @@ public class PizzaOrderingApp extends JFrame {
                 ex.printStackTrace(); // Handle SQL exceptions
                 JOptionPane.showMessageDialog(summaryFrame, "Error: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             }
-
+    
             // Implement payment processing logic here
             JOptionPane.showMessageDialog(summaryFrame, 
                 "Payment processed! Your order is being prepared. You have 5 minutes to cancel the order.", 
                 "Order Confirmation", JOptionPane.INFORMATION_MESSAGE);
-
-            
         });
-
-        summaryFrame.add(payButton);
-        summaryFrame.setVisible(true);
+    
+        summaryFrame.add(payButton); // Add the button to the summary frame
+        summaryFrame.setVisible(true); // Show the frame
+    
     }
 
     public static double calculatePizzaPrice(String pizzaName) {

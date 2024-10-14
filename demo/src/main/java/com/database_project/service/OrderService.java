@@ -49,13 +49,13 @@ public class OrderService {
         return id;
     }
 
-    public void placeOrder(int orderID, List<OrderPizza> pizzas, List<OrderDrinkAndDesert> drinksAndDesserts, String discountCodeID) throws SQLException {
+    public double placeOrder(int orderID, List<OrderPizza> pizzas, List<OrderDrinkAndDesert> drinksAndDesserts, String discountCodeID) throws SQLException {
         Order order = orderDAO.findByID(orderID);
         int customerID = order.getCustomerID();
         Customer customer = customerDAO.findByID(customerID);
         if (pizzas == null || pizzas.isEmpty()) {
             System.out.println("An order must include at least one pizza.");
-            return;
+            return -1;
         }
 
         double price = pizzasPrice(pizzas) + drinkAndDesertPrice(drinksAndDesserts);
@@ -100,6 +100,8 @@ public class OrderService {
         order.setStatus("being prepared");
         order.setPrice(price);
         orderDAO.update(order);
+
+        return price;
     }
 
     public int pizzasNumber(List<OrderPizza> orderPizzas) throws SQLException {
@@ -238,6 +240,42 @@ public class OrderService {
         Order order = orderDAO.findByID(orderID);
         order.setStatus(newStatus);
         orderDAO.update(order);
+    }
+
+    public String getAppliedDiscounts(int customerID, List<OrderPizza> pizzas, List<OrderDrinkAndDesert> drinksAndDesserts, String discountCodeID) throws SQLException {
+        StringBuilder discountMessage = new StringBuilder("Discounts Applied:\n");
+        boolean hasDiscount = false;
+
+        // Free pizza and drink on birthday
+        if (isBirthday(customerID)) {
+            hasDiscount = true;
+            discountMessage.append("- Free pizza and drink for birthday\n");
+        }
+
+        // 10% discount if 10 pizzas ordered
+        if (customerDAO.findByID(customerID).getPizzaCount() % 10 == 0) {
+            hasDiscount = true;
+            discountMessage.append("- 10% discount for ordering 10 pizzas\n");
+        }
+
+        // Check for discount code
+        // if (!discountCodeID.isEmpty()) {
+        //     DiscountCode discountCode = discountCodeDAO.findByID(discountCodeID);
+        //     if (discountCode != null && !discountCode.isUsed()) {
+        //         hasDiscount = true;
+        //         discountMessage.append(String.format("- %.2f%% discount from code: %s\n", discountCode.getPercentage() * 100, discountCodeID));
+        //     } else if (discountCode == null) {
+        //         discountMessage.append("- Invalid discount code\n");
+        //     } else {
+        //         discountMessage.append("- Discount code has already been used\n");
+        //     }
+        // }
+
+        if (!hasDiscount) {
+            return "No discounts applied.";
+        }
+
+        return discountMessage.toString();
     }
 
 }
