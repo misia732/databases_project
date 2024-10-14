@@ -108,16 +108,24 @@ public class OrderService {
         }
 
         // 10% dicount if 10 pizzas ordered
-        if(customer.getPizzaCount()%10 == 0){
+        int pizzaCount = customer.getPizzaCount();
+        System.out.println("pizza count = " + pizzaCount);
+        if(pizzaCount >= 10){
+            System.out.println("");
+            System.out.print("-10% dicount: " + price + " is now ");
             price *= 0.9;
-            
             System.out.println(price);
+            customer.setPizzaCount(pizzaCount-10);
         }
 
         // number of ordered pizzas
         int n = pizzasNumber(pizzas);
+        int currentPizzaCount = customer.getPizzaCount();
+        int newPizzaCount = currentPizzaCount + n;
+        System.out.println("Old pizza count : " + currentPizzaCount);
         System.out.println("number of pizzas ordered: " + n);
-        customer.setPizzaCount(n);
+        System.out.println("New pizza count: " + newPizzaCount);
+        customer.setPizzaCount(newPizzaCount);
         customerDAO.update(customer);
 
         LocalDateTime now = LocalDateTime.now();
@@ -143,7 +151,7 @@ public class OrderService {
         for (OrderPizza orderPizza : orderPizzas) {
             int pizzaID = orderPizza.getPizzaID();
             int quantity = orderPizza.getQuantity();
-            double pizzaPrice = calculatePizzaPrice(pizzaDAO.findByID(pizzaID));
+            double pizzaPrice = calculatePizzaPrice(pizzaDAO.findByID(pizzaID)) * quantity;
             price =+ pizzaPrice;
         }
         return price;

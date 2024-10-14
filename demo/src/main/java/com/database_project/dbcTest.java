@@ -3,18 +3,20 @@ package com.database_project;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.sql.*;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.database_project.DAO.*;
+import com.database_project.DAO.CustomerDAO;
+import com.database_project.DAO.CustomerDAOImpl;
+import com.database_project.DAO.DeliveryPersonnelDAO;
+import com.database_project.DAO.DeliveryPersonnelDAOImpl;
 import com.database_project.config.DatabaseConfig;
-import com.database_project.entity.*;
-import com.database_project.service.*;
-import com.database_project.config.*;
+import com.database_project.entity.Customer;
+import com.database_project.entity.DeliveryPersonnel;
+import com.database_project.entity.Ingredient;
+import com.database_project.entity.OrderDrinkAndDesert;
+import com.database_project.entity.OrderPizza;
+import com.database_project.service.OrderService;
 
 
 public class dbcTest{
@@ -178,16 +180,25 @@ public class dbcTest{
         //         System.out.println("VendorError: " + e.getErrorCode());
         // };
 
-        // try(Connection conn = DatabaseConfig.getConnection())
-        // {
-        //     OrderService orderService = new OrderService(conn);
-        //     orderService.changeStatus(1, "out for delivery");
-        // }
-        // catch (SQLException e) {
-        //         System.out.println("SQLException: " + e.getMessage());
-        //         System.out.println("SQLState: " + e.getSQLState());
-        //         System.out.println("VendorError: " + e.getErrorCode());
-        // };
+        try(Connection conn = DatabaseConfig.getConnection())
+        {
+            // CustomerDAO customerDAO = new CustomerDAOImpl(conn);
+            // Customer c = customerDAO.findByID(2);
+            // c.setPizzaCount(0);
+            // customerDAO.update(c);
+            OrderService orderService = new OrderService(conn);
+            int id = orderService.initializeNewOrder(2);
+            List <OrderPizza> orderPizza = new ArrayList<>();
+            OrderPizza o = new com.database_project.entity.OrderPizza(id, 1, 9);
+            List<OrderDrinkAndDesert> d = new ArrayList<>();
+            orderPizza.add(o);
+            orderService.placeOrder(id, orderPizza, d, "");
+        }
+        catch (SQLException e) {
+                System.out.println("SQLException: " + e.getMessage());
+                System.out.println("SQLState: " + e.getSQLState());
+                System.out.println("VendorError: " + e.getErrorCode());
+        };
 
         // try(Connection conn = DatabaseConfig.getConnection())
         // {
