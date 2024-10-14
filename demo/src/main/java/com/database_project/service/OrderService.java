@@ -4,13 +4,34 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.Random;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.time.LocalDateTime;
 
-import com.database_project.DAO.*;
-import com.database_project.entity.*;
+import com.database_project.DAO.CustomerDAO;
+import com.database_project.DAO.CustomerDAOImpl;
+import com.database_project.DAO.DiscountCodeDAO;
+import com.database_project.DAO.DiscountCodeDAOImpl;
+import com.database_project.DAO.DrinkAndDesertDAO;
+import com.database_project.DAO.DrinkAndDesertDAOImpl;
+import com.database_project.DAO.IngredientDAO;
+import com.database_project.DAO.IngredientDAOImpl;
+import com.database_project.DAO.OrderDAO;
+import com.database_project.DAO.OrderDAOImpl;
+import com.database_project.DAO.OrderDrinkAndDesertDAO;
+import com.database_project.DAO.OrderDrinkAndDesertDAOImpl;
+import com.database_project.DAO.OrderPizzaDAO;
+import com.database_project.DAO.OrderPizzaDAOImpl;
+import com.database_project.DAO.PizzaDAO;
+import com.database_project.DAO.PizzaDAOImpl;
+import com.database_project.entity.Customer;
+import com.database_project.entity.DiscountCode;
+import com.database_project.entity.DrinkAndDesert;
+import com.database_project.entity.Ingredient;
+import com.database_project.entity.Order;
+import com.database_project.entity.OrderDrinkAndDesert;
+import com.database_project.entity.OrderPizza;
+import com.database_project.entity.Pizza;
 
 public class OrderService {
 
@@ -86,11 +107,6 @@ public class OrderService {
             }
         }
 
-        // number of ordered pizzas
-        int n = pizzasNumber(pizzas);
-        System.out.println("number of pizzas ordered: " + n);
-        customer.setPizzaCount(n);
-
         // 10% dicount if 10 pizzas ordered
         if(customer.getPizzaCount()%10 == 0){
             price *= 0.9;
@@ -98,6 +114,10 @@ public class OrderService {
             System.out.println(price);
         }
 
+        // number of ordered pizzas
+        int n = pizzasNumber(pizzas);
+        System.out.println("number of pizzas ordered: " + n);
+        customer.setPizzaCount(n);
         customerDAO.update(customer);
 
         LocalDateTime now = LocalDateTime.now();
