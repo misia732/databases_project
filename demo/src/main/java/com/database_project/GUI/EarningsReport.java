@@ -2,6 +2,8 @@ package com.database_project.GUI;
 
 import javax.swing.*;
 import com.database_project.DAO.CustomerDAOImpl;
+import com.database_project.config.DatabaseConfig;
+
 import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -60,9 +62,7 @@ public class EarningsReport extends JFrame {
 
         // Generate report button
         generateReportButton = new JButton("Generate Report");
-        generateReportButton.addActionListener(e -> {
-            generateReport();
-        });
+        generateReportButton.addActionListener(e -> generateReport());
 
         // Add components to the input panel
         inputPanel.add(new JLabel("Select Postal Code:"));
@@ -94,89 +94,98 @@ public class EarningsReport extends JFrame {
         setVisible(true);
     }
 
-    // Generate the earnings report based on selected filters
+
     private void generateReport() {
         String selectedPostalCode = (String) postalCodeComboBox.getSelectedItem();
         String selectedCity = (String) cityComboBox.getSelectedItem();
         String selectedGender = (String) genderComboBox.getSelectedItem();
-        String age = ageTextField.getText();
-
-        // Ensure "Select Gender" is not used as a filter
-        if ("Select Gender".equals(selectedGender)) {
-            selectedGender = ""; // Set to empty if placeholder is selected
-        }
-
-        // Build the filtering criteria
-        StringBuilder query = new StringBuilder("SELECT o.order_id, o.total_amount, o.order_date, ");
-        query.append("SUM(o.total_amount) OVER() AS total_sum, ");
-        query.append("MIN(o.total_amount) OVER() AS min_order, ");
-        query.append("MAX(o.total_amount) OVER() AS max_order, ");
-        query.append("AVG(o.total_amount) OVER() AS avg_order ");
-        query.append("FROM `order` o ");
-        query.append("JOIN customer c ON o.customer_id = c.customer_id ");
-        query.append("WHERE 1 = 1 ");
-
-        // Add filters dynamically
-        if (!selectedPostalCode.isEmpty()) {
-            query.append("AND c.postal_code = ? ");
-        }
-        if (!selectedCity.isEmpty()) {
-            query.append("AND c.city = ? ");
-        }
-        if (!selectedGender.isEmpty()) {
-            query.append("AND c.gender = ? ");
-        }
-        if (!age.isEmpty()) {
-            query.append("AND TIMESTAMPDIFF(YEAR, c.birth_date, CURDATE()) = ? ");
-        }
-
-        query.append("GROUP BY o.order_id, o.total_amount, o.order_date ");
-
-        try (PreparedStatement stmt = conn.prepareStatement(query.toString())) {
-            int index = 1;
-            // Set the parameters for the query
+        String ageText = ageTextField.getText().trim();
+    
+        try {
+            if (conn == null || conn.isClosed()) {
+                conn = DatabaseConfig.getConnection(); // Ensure connection is open
+            }
+    
+            // SQL query to join customer and order tables and calculate metrics
+            StringBuilder query = new StringBuilder(
+                "SELECT COUNT(o.ID) AS totalOrders, SUM(o.price) AS totalEarnings, " +
+                "MIN(o.price) AS minOrder, MAX(o.price) AS maxOrder, AVG(o.price) AS avgOrder " +
+                "FROM customer c " +
+                "INNER JOIN `order` o ON c.ID = o.customerID " +
+                "WHERE 1=1");
+    
+            // Add filters based on user selection
             if (!selectedPostalCode.isEmpty()) {
-                stmt.setString(index++, selectedPostalCode);
+                query.append(" AND c.postalCode = ?");
             }
             if (!selectedCity.isEmpty()) {
-                stmt.setString(index++, selectedCity);
+                query.append(" AND c.city = ?");
             }
-            if (!selectedGender.isEmpty()) {
-                stmt.setString(index++, selectedGender);
+            if (!selectedGender.equals("Select Gender")) {
+                query.append(" AND c.gender = ?");
             }
-            if (!age.isEmpty()) {
-                stmt.setInt(index++, Integer.parseInt(age));
+            if (!ageText.isEmpty()) {
+                // Assuming you want to filter based on age; you may need to adjust how age is calculated
+                query.append(" AND YEAR(CURDATE()) - YEAR(c.birthDate) = ?");
             }
-
-            // Execute the query and display the results
-            ResultSet rs = stmt.executeQuery();
-            StringBuilder results = new StringBuilder();
-            double totalSum = 0, minOrder = 0, maxOrder = 0, avgOrder = 0;
-            boolean first = true;
-
-            while (rs.next()) {
-                // Display each order
-                results.append("Order ID: ").append(rs.getInt("order_id"))
-                        .append(", Amount: ").append(rs.getDouble("total_amount"))
-                        .append(", Date: ").append(rs.getDate("order_date")).append("\n");
-
-                // Capture the summary values from the first row
-                if (first) {
-                    totalSum = rs.getDouble("total_sum");
-                    minOrder = rs.getDouble("min_order");
-                    maxOrder = rs.getDouble("max_order");
-                    avgOrder = rs.getDouble("avg_order");
-                    first = false;
+    
+            try (PreparedStatement stmt = conn.prepareStatement(query.toString())) {
+                int paramIndex = 1;
+    
+                // Set the parameters for the query based on selected filters
+                if (!selectedPostalCode.isEmpty()) {
+                    stmt.setString(paramIndex++, selectedPostalCode);
                 }
+                if (!selectedCity.isEmpty()) {
+                    stmt.setString(paramIndex++, selectedCity);
+                }
+                if (!selectedGender.equals("Select Gender")) {
+                    stmt.setString(paramIndex++, selectedGender);
+                }
+                if (!ageText.isEmpty()) {
+                    stmt.setInt(paramIndex++, Integer.parseInt(ageText)); // Assuming age is an integer
+                }
+    
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        // Get the metrics from the result set
+                        int totalOrders = rs.getInt("totalOrders");
+                        double totalEarnings = rs.getDouble("totalEarnings");
+                        double minOrder = rs.getDouble("minOrder");
+                        double maxOrder = rs.getDouble("maxOrder");
+                        double avgOrder = rs.getDouble("avgOrder");
+    
+                        // Update the result area and summary label
+                        resultArea.setText("Total Orders: " + totalOrders + 
+                                           "\nTotal Earnings: " + totalEarnings + 
+                                           "\nMin Order: " + minOrder + 
+                                           "\nMax Order: " + maxOrder + 
+                                           "\nAvg Order: " + avgOrder);
+                        summaryLabel.setText("Summary: Total Orders = " + totalOrders + 
+                                             ", Total Earnings = " + totalEarnings + 
+                                             ", Min = " + minOrder + 
+                                             ", Max = " + maxOrder + 
+                                             ", Avg = " + avgOrder);
+                    } else {
+                        resultArea.setText("No orders found for the selected criteria.");
+                        summaryLabel.setText("Summary: N/A");
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error generating report: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Invalid age format. Please enter a valid number.", "Input Error", JOptionPane.ERROR_MESSAGE);
             }
-
-            resultArea.setText(results.toString()); // Display orders
-            summaryLabel.setText(String.format("Summary - Total: %.2f, Min: %.2f, Max: %.2f, Avg: %.2f",
-                    totalSum, minOrder, maxOrder, avgOrder)); // Display summary
-
+    
         } catch (SQLException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error executing query: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error connecting to the database: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+    
+    
+
+
+    
 }

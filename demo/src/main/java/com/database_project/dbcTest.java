@@ -71,12 +71,12 @@ public class dbcTest{
             new DeliveryPersonnel("Lucas", "Miller", "6229GV", "avaliable"),
             new DeliveryPersonnel("Emma", "Smith", "6229GV", "avaliable"),
             new DeliveryPersonnel("Oliver", "Johnson", "6229GV", "avaliable"),
-            new DeliveryPersonnel("Sophia", "Williams", "6229GV", "avaliable"),
+            new DeliveryPersonnel("Sophia", "Williams", "6211WH", "avaliable"),
             new DeliveryPersonnel("Liam", "Brown", "6229EN", "avaliable"),
             new DeliveryPersonnel("Ava", "Jones", "6229EN", "avaliable"),
             new DeliveryPersonnel("Noah", "Garcia", "6229EN", "avaliable"),
-            new DeliveryPersonnel("Isabella", "Martinez", "6229GV", "avaliable"),
-            new DeliveryPersonnel("Elijah", "Davis", "6229GV", "avaliable"),
+            new DeliveryPersonnel("Isabella", "Martinez", "6211WH", "avaliable"),
+            new DeliveryPersonnel("Elijah", "Davis", "6211WH", "avaliable"),
             new DeliveryPersonnel("Mia", "Rodriguez", "6229EN", "avaliable")
         };
 
@@ -177,6 +177,33 @@ public class dbcTest{
         //         System.out.println("SQLState: " + e.getSQLState());
         //         System.out.println("VendorError: " + e.getErrorCode());
         // };
+
+        try(Connection conn = DatabaseConfig.getConnection())
+        {
+            OrderService orderService = new OrderService(conn);
+            System.out.println("LLlllllllll");
+            orderService.changeStatus(1, "out for delivery");
+        }
+        catch (SQLException e) {
+                System.out.println("SQLException: " + e.getMessage());
+                System.out.println("SQLState: " + e.getSQLState());
+                System.out.println("VendorError: " + e.getErrorCode());
+        };
+
+        try(Connection conn = DatabaseConfig.getConnection())
+        {
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
+            Order order = orderDAO.findByID(1);
+            DeliveryService deliveryService = new DeliveryService(conn);
+            deliveryService.assignDeliveryPersonnel(order);
+        }
+        catch (SQLException e) {
+                System.out.println("SQLException: " + e.getMessage());
+                System.out.println("SQLState: " + e.getSQLState());
+                System.out.println("VendorError: " + e.getErrorCode());
+        };
+
+
     
     }
 }

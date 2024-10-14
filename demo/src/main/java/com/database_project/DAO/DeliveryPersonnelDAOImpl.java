@@ -103,17 +103,17 @@ public class DeliveryPersonnelDAOImpl implements DeliveryPersonnelDAO {
     public DeliveryPersonnel findAvailablePersonnel() {
         String query = "SELECT * FROM deliveryPersonnel WHERE status = ? LIMIT 1";
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setString(1, "Available");
+            pstmt.setString(1, "avaliable");
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
                 DeliveryPersonnel personnel = new DeliveryPersonnel(
-                    rs.getString("firtsName"),
+                    rs.getString("firstName"),
                     rs.getString("lastName"),
                     rs.getString("postalcode"),
                     rs.getString("status"
                 ));
-
+                personnel.setID(rs.getInt("ID"));
                 return personnel;
             }
         } catch (SQLException e) {

@@ -3,14 +3,19 @@ package com.database_project.GUI;
 import javax.swing.*;
 
 import com.database_project.DAO.CustomerDAOImpl;
+import com.database_project.DAO.DrinkAndDesertDAOImpl;
 import com.database_project.DAO.OrderDAOImpl;
+import com.database_project.DAO.OrderDrinkAndDesertDAOImpl;
 import com.database_project.DAO.OrderPizzaDAOImpl;
 import com.database_project.DAO.PizzaDAOImpl;
 import com.database_project.config.DatabaseConfig;
 import com.database_project.entity.OrderPizza;
 import com.database_project.entity.Pizza;
 import com.database_project.service.DeliveryService;
+import com.database_project.service.OrderService;
+import com.database_project.entity.DrinkAndDesert;
 import com.database_project.entity.Order;
+import com.database_project.entity.OrderDrinkAndDesert;
 
 import java.sql.Connection;
 import java.time.*;
@@ -20,6 +25,8 @@ import java.sql.SQLException;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -366,6 +373,7 @@ public class PizzaOrderingApp extends JFrame {
             int quantity = entry.getValue();
             double totalItemPrice = calculateDessertPrice(name) * quantity;
             orderArea.append(name + " (x" + quantity + ") - $" + String.format("%.2f", totalItemPrice) + "\n");
+            
         }
     
         // Update total price
@@ -454,23 +462,33 @@ public class PizzaOrderingApp extends JFrame {
                 // Assuming you have a 'loggedInCustomer' stored after the login
                 if (FirstScreen.loggedInCustomer != null) {
                     System.out.println("Customer exists in a database");
+
+
                     OrderDAOImpl orderDAO = new OrderDAOImpl(conn);
                     OrderPizzaDAOImpl orderPizzaDAO = new OrderPizzaDAOImpl(conn);
+                    OrderDrinkAndDesertDAOImpl orderDrinkDAO = new OrderDrinkAndDesertDAOImpl(conn);
+
+
+                    OrderService orderService = new OrderService(conn);
+                    int orderID = orderService.initializeNewOrder(FirstScreen.loggedInCustomer.getID());
+
 
                     // Create an Order object
-                    LocalDateTime now = LocalDateTime.now();
-                    Order newOrder = new Order(
-                        FirstScreen.loggedInCustomer.getID(), // Customer ID from the logged-in customer
-                        now,
-                        "being prepared",  // hardcoded for now
-                        1,  // placeholder for now
-                        totalPrice
-                    );
+                    // LocalDateTime now = LocalDateTime.now();
+                    // Order newOrder = new Order(
+                    //     FirstScreen.loggedInCustomer.getID(), // Customer ID from the logged-in customer
+                    //     now,
+                    //     "being prepared",  // hardcoded for now
+                    //     1,  // placeholder for now
+                    //     totalPrice
+                    // );
     
 
                     // inserting the order to the database
-                    System.out.println("Inserted order into the database");
-                    orderDAO.insert(newOrder);
+                    // System.out.println("Inserted order into the database");
+                    // orderDAO.insert(newOrder);
+
+                    List<OrderPizza> orderPizzas = new ArrayList<>();
 
                     // For each pizza in the order, insert the corresponding OrderPizza record
                     for (Map.Entry<String, Integer> entry : orderedPizzas.entrySet()) {
@@ -484,10 +502,12 @@ public class PizzaOrderingApp extends JFrame {
 
                     
                         OrderPizza orderPizza = new OrderPizza(
-                            newOrder.getID(),  // Order ID from the newly inserted order
+                            orderID,            // Order ID from the newly inserted order
                             pizzaID,           // Pizza ID from the pizza object
                             quantity           // The actual quantity from the HashMap
                         );
+
+                        orderPizzas.add(orderPizza);
 
                         int currentPizzaCount = FirstScreen.loggedInCustomer.getPizzaCount();
                         currentPizzaCount += quantity;
@@ -499,7 +519,38 @@ public class PizzaOrderingApp extends JFrame {
                         // Insert into the orderPizza table
                         orderPizzaDAO.insert(orderPizza);
                     }
-                    
+
+                    System.out.println(orderPizzas);
+
+                    List<OrderDrinkAndDesert> orderDrinks = new ArrayList<>();
+
+                    // Inserting Ordered Drinks
+                    for (Map.Entry<String, Integer> entry : orderedDessertAndDrink.entrySet()) {
+                        String drinkName = entry.getKey();  // Drink name
+                        int quantity = entry.getValue();    // Quantity
+
+                        DrinkAndDesertDAOImpl drinkDAO = new DrinkAndDesertDAOImpl(conn);
+                        DrinkAndDesert drink = drinkDAO.findByName(drinkName);
+                        int drinkID = drink.getID(); 
+
+                        OrderDrinkAndDesert orderDrink = new OrderDrinkAndDesert(
+                            orderID,  // Order ID from the newly inserted order
+                            drinkID,           // Drink ID from the drink object
+                            quantity           // The actual quantity from the HashMap
+                        );
+
+                        orderDrinks.add(orderDrink);
+
+                        System.out.println("Drink inserted");
+                        // Insert into the orderDrink table
+                        orderDrinkDAO.insert(orderDrink);
+                        }
+
+                        System.out.println(orderDrinks);
+
+                        orderService.placeOrder(orderID, orderPizzas, orderDrinks, getName());
+
+
 
                     // Close the summary frame
                     summaryFrame.dispose();

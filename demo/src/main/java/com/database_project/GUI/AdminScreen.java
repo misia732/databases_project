@@ -10,6 +10,7 @@ import com.database_project.config.DatabaseConfig;
 import com.database_project.entity.Order;
 import com.database_project.entity.OrderPizza;
 import com.database_project.entity.Pizza;
+import com.database_project.service.OrderService;
 
 import java.awt.*;
 import java.sql.SQLException;
@@ -48,7 +49,11 @@ public class AdminScreen extends JFrame {
 
         monitoringButton.addActionListener(e -> {
             try (Connection conn = DatabaseConfig.getConnection()) {
-                new RestaurantMonitoring(conn); // Open the Restaurant Monitoring screen
+                // Initialize OrderService with the database connection
+                OrderService orderService = new OrderService(conn);
+                
+                // Open the Restaurant Monitoring screen with the initialized OrderService
+                new RestaurantMonitoring(conn, orderService);
             } catch (SQLException ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Error connecting to the database", "Database Error", JOptionPane.ERROR_MESSAGE);

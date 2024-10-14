@@ -2,65 +2,59 @@ package com.database_project.GUI;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
+
+import com.database_project.entity.Pizza;
+import com.database_project.service.OrderService;
+
+import java.awt.BorderLayout;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 public class RestaurantMonitoring extends JFrame {
     private JTable pizzaTable;
     private DefaultTableModel tableModel;
+    private OrderService orderService; // Now we'll initialize this
 
-    public RestaurantMonitoring(Connection conn) {
+    // Updated constructor to accept an OrderService instance
+    public RestaurantMonitoring(Connection conn, OrderService orderService) {
+        this.orderService = orderService; // Initialize the orderService
         setTitle("Restaurant Monitoring");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Create table model
-        tableModel = new DefaultTableModel(new String[]{"Order ID", "Pizza Name", "Quantity", "Order Date"}, 0);
+        // Create table model with only Pizza Name
+        tableModel = new DefaultTableModel(new String[]{"Pizzas to be prepared: "}, 0);
         pizzaTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(pizzaTable);
 
         // Add components to the frame
         add(scrollPane, BorderLayout.CENTER);
 
-        // Load pizzas that are not yet dispatched
-        loadOrderedPizzas(conn);
+        // Load and display pizzas
+        loadPizzas();
 
         // Center the window
         setLocationRelativeTo(null);
         setVisible(true);
     }
 
-    private void loadOrderedPizzas(Connection conn) {
-        String query = "SELECT o.ID, p.name, op.quantity, o.placementTime " +
-                       "FROM orderPizza AS op " +
-                       "JOIN `order` AS o ON op.orderID = o.ID " +
-                       "JOIN pizza AS p ON op.ID = p.ID " +
-                       "WHERE o.status = 'being prepared'";
-
-
-        try (PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
-
-            // Clear existing rows
-            tableModel.setRowCount(0);
-
-            while (rs.next()) {
-                // Add rows to the table
-                tableModel.addRow(new Object[]{
-                        rs.getInt("order_id"),
-                        rs.getString("pizza_name"),
-                        rs.getInt("quantity"),
-                        rs.getDate("order_date")
-                });
+    private void loadPizzas() {
+        try {
+            List<Pizza> todoPizzas = orderService.getToDoPizzas(); // Retrieve the pizzas
+            // Populate the table model with just the pizza names
+            for (Pizza pizza : todoPizzas) {
+                tableModel.addRow(new Object[]{pizza.getName()}); // Add only the pizza name
             }
-
         } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error fetching pizza orders: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace(); // Handle exceptions appropriately
+            JOptionPane.showMessageDialog(this, "Error loading pizzas: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
+
+    
 }
+
+

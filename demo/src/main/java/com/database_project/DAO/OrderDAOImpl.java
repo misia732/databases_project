@@ -151,10 +151,10 @@ public class OrderDAOImpl implements OrderDAO {
                         status = (String) statusObject;
                     }
 
-                    Integer deliveryPersonelID = null;
-                    Object deliveryPersonelIDObject = rs.getObject("deliveryPersonnelID");
-                    if (deliveryPersonelIDObject != null) {
-                        deliveryPersonelID = (Integer) deliveryPersonelIDObject;
+                    Integer deliveryPersonnelID = null;
+                    Object deliveryPersonnelIDObject = rs.getObject("deliveryPersonnelID");
+                    if (deliveryPersonnelIDObject != null) {
+                        deliveryPersonnelID = (Integer) deliveryPersonnelIDObject;
                     }
 
                     Double price = null;
@@ -163,7 +163,7 @@ public class OrderDAOImpl implements OrderDAO {
                         price = (Double) priceObject;
                     }
 
-                    order = new Order(customerID, placementTime, status, deliveryPersonelID, price);
+                    order = new Order(customerID, placementTime, status, deliveryPersonnelID, price);
                     order.setID(id);
                 }
             }
@@ -202,7 +202,7 @@ public class OrderDAOImpl implements OrderDAO {
                     rs.getInt("customerID"),
                     rs.getTimestamp("placementTime").toLocalDateTime(),
                     rs.getString("status"),
-                    rs.getInt("deliveryPersonelID"),
+                    rs.getInt("deliveryPersonnelID"),
                     rs.getDouble("price")
                 );
                 order.setID(rs.getInt("ID"));
@@ -220,7 +220,7 @@ public class OrderDAOImpl implements OrderDAO {
     public List<Order> findOrdersByPostalcodeAndTime(String postalCode, LocalDateTime timeWindow){
         List<Order> orders = new ArrayList<>();
         String query = "SELECT * FROM `order` "
-                 + "JOIN customers ON order.customerID = customer.ID "
+                 + "JOIN customer ON order.customerID = customer.ID "
                  + "WHERE customer.postalCode = ? AND order.placementTime >= ? AND order.status = 'being prepared'";
         try(PreparedStatement stmt = conn.prepareStatement(query)){
             stmt.setString(1, postalCode);
@@ -232,7 +232,7 @@ public class OrderDAOImpl implements OrderDAO {
                     rs.getInt("customerID"),
                     rs.getTimestamp("placementTime").toLocalDateTime(),
                     rs.getString("status"),
-                    rs.getInt("deliveryPersonelID"),
+                    rs.getInt("deliveryPersonnelID"),
                     rs.getDouble("price")
                 );
                 orders.add(order);
@@ -243,4 +243,37 @@ public class OrderDAOImpl implements OrderDAO {
         }
         return orders;
     }
+
+    public boolean hasPendingOrder(int customerId) {
+        String query = "SELECT COUNT(*) FROM `order` WHERE customerID = ? AND status != 'delivered'";
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, customerId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0; // Returns true if there are pending orders
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return false; // No pending orders
+    }
+
+    public int findOrderIDbyCustomerID(int customerId) {
+        String query = "SELECT ID FROM `order` WHERE customerID = ? AND status != 'delivered' LIMIT 1";
+    
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, customerId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("ID"); // Return the first undelivered order ID
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        
+        return -1; 
+    }
+    
 }

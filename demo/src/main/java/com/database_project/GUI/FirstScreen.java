@@ -1,6 +1,7 @@
 package com.database_project.GUI;
 
 import com.database_project.DAO.CustomerDAOImpl;
+import com.database_project.DAO.OrderDAOImpl;
 import com.database_project.config.DatabaseConfig;
 import com.database_project.entity.Customer;
 
@@ -155,15 +156,15 @@ public class FirstScreen {
                 CustomerDAOImpl customerDAO = new CustomerDAOImpl(conn);
                 String email = emailField.getText();
                 String password = new String(passwordField.getPassword()); // Get password
-
+        
                 // Check if the email is "admin"
                 if (email.equals("admin")) {
                     // Find admin user by email
                     Customer adminCustomer = customerDAO.findByEmail(email);
                     if (adminCustomer != null && adminCustomer.getPassword().equals(password)) {
                         // If admin email and password are correct, open RestaurantApp
-                        new AdminScreen(); 
-                        logInFrame.dispose(); 
+                        new AdminScreen();
+                        logInFrame.dispose();
                     } else {
                         // Invalid admin credentials
                         JOptionPane.showMessageDialog(logInFrame, "Invalid admin email or password", "Login Error", JOptionPane.ERROR_MESSAGE);
@@ -174,7 +175,16 @@ public class FirstScreen {
                     if (customer != null && customer.getPassword().equals(password)) {
                         System.out.println("Customer found");
                         loggedInCustomer = customer;
-                        new PizzaOrderingApp(); // Open the PizzaOrderingApp
+        
+                        OrderDAOImpl orderDAOImpl = new OrderDAOImpl(conn);
+        
+                        // Check if the customer has any undelivered orders
+                        if (orderDAOImpl.hasPendingOrder(customer.getID())) {
+                            // Open Order Tracking window
+                            new OrderTracking(customer.getID(), conn); // Corrected line to instantiate OrderTrackingWindow
+                        } else {
+                            new PizzaOrderingApp(); // Open the PizzaOrderingApp
+                        }
                         logInFrame.dispose(); // Close the login frame
                     } else {
                         // Invalid customer credentials
@@ -186,6 +196,7 @@ public class FirstScreen {
                 JOptionPane.showMessageDialog(logInFrame, "Error: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+        
 
         logInFrame.add(submitButton);
 

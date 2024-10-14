@@ -62,8 +62,13 @@ public class OrderService {
         
         // free pizza and drink on birthday
         if(isBirthday(customerID)){
+            System.out.println(price);
             price -= theLowestPizzaPrice(pizzas);
+            System.out.println(price);
             price -= theLowestDrinkAndDesertPrice(drinksAndDesserts);
+            System.out.println(price);
+            System.out.println("Birthday discount applied");
+            
         }
 
         // 10% dicount if 10 pizzas ordered
@@ -114,9 +119,6 @@ public class OrderService {
             double pizzaPrice = calculatePizzaPrice(pizzaDAO.findByID(pizzaID));
             price =+ pizzaPrice;
         }
-        // 40% prifit margin + 9% VAT
-        price *= 1.4;
-        price *= 1.09;
         return price;
     }
 
@@ -131,6 +133,7 @@ public class OrderService {
             double price = calculatePizzaPrice(pizza);
             if(price < min) min = price;
         }
+        System.out.println("min pizza price: " + min);
         return min;
     }
 
@@ -142,7 +145,9 @@ public class OrderService {
             double iprice = ingredient.getPrice();
             price += iprice;
         }
-        return price;
+        price *= 1.4;
+        price *= 1.09;
+        return Math.round(price * 100.0) / 100.0;
     }
 
     public double drinkAndDesertPrice(List<OrderDrinkAndDesert> orderDrinksAndDeserts) throws SQLException {
@@ -151,6 +156,7 @@ public class OrderService {
             int id = orderDrinkAndDesert.getDrinkAndDesertID();
             DrinkAndDesert drinkAndDesert = drinkAndDesertDAO.findByID(id);
             price += calculateDrinkAndDesertPrice(drinkAndDesert) * orderDrinkAndDesert.getQuantity();
+            System.out.println("Ordered drink or dessert price: " + price);
         }
         return price;
     }
@@ -170,6 +176,7 @@ public class OrderService {
     }
 
     private double calculateDrinkAndDesertPrice(DrinkAndDesert drinkAndDesert){
+        System.out.println(drinkAndDesert.getPrice());
         return drinkAndDesert.getPrice();
     }
 
@@ -197,6 +204,7 @@ public class OrderService {
                 }
             }
         }
+        System.out.println(todo);
         return todo;
     }
     
@@ -226,5 +234,10 @@ public class OrderService {
         this.deliveryService = deliveryService;
     }
 
+    public void changeStatus(int orderID, String newStatus){
+        Order order = orderDAO.findByID(orderID);
+        order.setStatus(newStatus);
+        orderDAO.update(order);
+    }
 
 }

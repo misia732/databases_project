@@ -43,6 +43,10 @@ public class DeliveryService {
     public static int assignDeliveryPersonnel(Order order) throws SQLException {
         DeliveryPersonnel availablePersonnel = deliveryPersonnelDAO.findAvailablePersonnel();
         Customer customer = customerDAO.findByID(order.getCustomerID());
+        if(!order.getStatus().equals("waiting for delivery")){
+            System.out.println("Order is not waiting for delivery.");
+            return -1;
+        }
 
         if (availablePersonnel == null) {
             System.out.println("No delivery personnel available.");

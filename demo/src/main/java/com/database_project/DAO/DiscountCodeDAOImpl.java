@@ -37,7 +37,7 @@ public class DiscountCodeDAOImpl implements DiscountCodeDAO {
     @Override
     public void delete(DiscountCode discountCode) {
         if (discountCodeExistsByID(discountCode.getID())) {
-            String query = "DELETE FROM discount_code WHERE ID = ?";
+            String query = "DELETE FROM discountCode WHERE ID = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                 pstmt.setString(1, discountCode.getID());
                 pstmt.executeUpdate();
@@ -51,7 +51,7 @@ public class DiscountCodeDAOImpl implements DiscountCodeDAO {
 
     @Override
     public void update(DiscountCode discountCode) {
-        String query = "UPDATE discount_code SET isUsed = ?, percentage = ? WHERE ID = ?";
+        String query = "UPDATE discountCode SET isUsed = ?, percentage = ? WHERE ID = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setBoolean(1, discountCode.isUsed());
             pstmt.setDouble(2, discountCode.getPercentage());
@@ -65,7 +65,7 @@ public class DiscountCodeDAOImpl implements DiscountCodeDAO {
 
     @Override
     public DiscountCode findByID(String id) {
-        String query = "SELECT * FROM discount_code WHERE ID = ?";
+        String query = "SELECT * FROM discountCode WHERE ID = ?";
         DiscountCode discountCode = null;
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, id);
@@ -86,7 +86,7 @@ public class DiscountCodeDAOImpl implements DiscountCodeDAO {
     }
 
     private boolean discountCodeExistsByID(String id) {
-        String query = "SELECT COUNT(*) FROM discount_code WHERE ID = ?";
+        String query = "SELECT COUNT(*) FROM discountCode WHERE ID = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
