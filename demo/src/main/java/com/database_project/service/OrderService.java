@@ -103,7 +103,8 @@ public class OrderService {
                 System.out.println("Discount code " + discountCodeID +  " is used.");
             }
             else{
-                price *= (1 - discountCode.getPercentage());
+                double percentage =  discountCode.getPercentage() / 100;
+                price *= (1 - percentage);
                 System.out.println("Discount code applied.");
                 System.out.println("New price: " + price);
             }
