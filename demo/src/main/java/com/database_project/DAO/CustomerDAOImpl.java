@@ -124,7 +124,7 @@ public class CustomerDAOImpl implements CustomerDAO {
                         customer.setPhoneNumber(rs.getString("phoneNumber"));
                         customer.setEmail(rs.getString("email"));
                         customer.setPassword(rs.getString("password"));
-                        customer.setAddress(rs.getString("phoneNumber"));
+                        customer.setAddress(rs.getString("address"));
                         customer.setPostalcode(rs.getString("postalCode"));
                         customer.setCity(rs.getString("city"));
                         customer.setPizzaCount(rs.getInt("pizzaCount"));

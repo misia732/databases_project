@@ -3,8 +3,6 @@ package com.database_project;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.database_project.DAO.CustomerDAO;
 import com.database_project.DAO.CustomerDAOImpl;
@@ -12,9 +10,6 @@ import com.database_project.config.DatabaseConfig;
 import com.database_project.entity.Customer;
 import com.database_project.entity.DeliveryPersonnel;
 import com.database_project.entity.Ingredient;
-import com.database_project.entity.OrderDrinkAndDesert;
-import com.database_project.entity.OrderPizza;
-import com.database_project.service.OrderService;
 
 
 public class dbcTest{
@@ -49,7 +44,7 @@ public class dbcTest{
         
 
         // inserting customers
-        
+        /*
         try (Connection conn = DatabaseConfig.getConnection()){
             CustomerDAO customerDAO = new CustomerDAOImpl(conn);
             for (Customer customer : customers) {
@@ -60,7 +55,7 @@ public class dbcTest{
             System.out.println("SQLState: " + e.getSQLState());
             System.out.println("VendorError: " + e.getErrorCode());
         }
-        
+        */
 
         // create delivery personel
         DeliveryPersonnel[] deliveryPersonnel = {
@@ -122,18 +117,19 @@ public class dbcTest{
 
         try (Connection conn = DatabaseConfig.getConnection()) {
             CustomerDAO customerDAO = new CustomerDAOImpl(conn);
-            Customer c = customerDAO.findByID(2);
-            c.setPizzaCount(0);
+            Customer c = customerDAO.findByEmail("discountCode");
+            c.setAddress("Oak Street 7");
+            // c.setPizzaCount(0);
             customerDAO.update(c);
-            OrderService orderService = new OrderService(conn);
-            orderService.cancelOrder(17);
-            orderService.cancelOrder(18);
-            int id = orderService.initializeNewOrder(2);
-            List<OrderPizza> orderPizza = new ArrayList<>();
-            orderPizza.add(new OrderPizza(id, 3, 2));
-            List<OrderDrinkAndDesert> orderdd = new ArrayList<>();
-            orderdd.add(new OrderDrinkAndDesert(id,1,1));
-            double price = orderService.placeOrder(id, orderPizza, orderdd, "");
+            // OrderService orderService = new OrderService(conn);
+            // orderService.cancelOrder(17);
+            // orderService.cancelOrder(18);
+            // int id = orderService.initializeNewOrder(2);
+            // List<OrderPizza> orderPizza = new ArrayList<>();
+            // orderPizza.add(new OrderPizza(id, 3, 2));
+            // List<OrderDrinkAndDesert> orderdd = new ArrayList<>();
+            // orderdd.add(new OrderDrinkAndDesert(id,1,1));
+            // double price = orderService.placeOrder(id, orderPizza, orderdd, "");
         } catch (SQLException e) {
             System.out.println("SQLException: " + e.getMessage());
             System.out.println("SQLState: " + e.getSQLState());
