@@ -35,6 +35,7 @@ public class PizzaOrderingApp extends JFrame {
     private double totalPrice = 0.0;
     private HashMap<String, Integer> orderedPizzas;
     private HashMap<String, Integer> orderedDessertAndDrink;
+    String discountCode;
 
 
     private static final HashMap<String, Double> ingredientPrices = new HashMap<>();
@@ -214,6 +215,11 @@ public class PizzaOrderingApp extends JFrame {
         orderPanel.add(scrollPane, BorderLayout.CENTER);
 
         // Order Button
+        // Create discount code text field
+        JTextField discountCodeField = new JTextField(15);  // 15 columns wide
+        discountCodeField.setToolTipText("Enter discount code");
+
+        // Create order button
         JButton orderButton = new JButton("ORDER");
         orderButton.addActionListener(e -> {
             if (orderedPizzas.isEmpty()) {
@@ -222,13 +228,32 @@ public class PizzaOrderingApp extends JFrame {
                         "Order Error",
                         JOptionPane.WARNING_MESSAGE);
             } else {
+                // Get the discount code entered by the user
+                discountCode = discountCodeField.getText().trim();
+
+                if (!discountCode.isEmpty()) {
+                    // You can pass the discount code to the order processing logic here
+                    System.out.println("Discount code entered: " + discountCode);
+                }
+
                 // If there are pizzas in the order, show the order summary
                 showOrderSummary();
             }
         });
+
+        // Create a panel to hold the order button and the discount code field
         JPanel buttonPanel = new JPanel();
-        buttonPanel.add(orderButton);
+        buttonPanel.add(new JLabel("Enter discount code:"));  // Label for the text field
+        buttonPanel.add(discountCodeField);                   // Add the text field
+        buttonPanel.add(orderButton);                         // Add the order button
+
+        // Add the buttonPanel to the orderPanel
         orderPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Add the orderPanel to the main layout
+        add(orderPanel, BorderLayout.SOUTH); // This should be the only addition of orderPanel
+        setVisible(true);
+
 
         // Add the orderPanel to the main layout
         add(orderPanel, BorderLayout.SOUTH); // This should be the only addition of orderPanel
@@ -511,9 +536,11 @@ public class PizzaOrderingApp extends JFrame {
                         orderDrinkDAO.insert(orderDrink);
                     }
     
+                    
+
                     // Get the total price from the placeOrder method
-                    double totalPrice = orderService.placeOrder(orderID, orderPizzas, orderDrinks, getName());
-                    String discounts = orderService.getAppliedDiscounts(FirstScreen.loggedInCustomer.getID(), orderPizzas, orderDrinks, getName());
+                    double totalPrice = orderService.placeOrder(orderID, orderPizzas, orderDrinks, discountCode);
+                    String discounts = orderService.getAppliedDiscounts(FirstScreen.loggedInCustomer.getID(), orderPizzas, orderDrinks, discountCode);
 
                     // Add the total price and discounts to the order summary
                     orderArea.append(discounts);  // Show applied discounts
