@@ -53,12 +53,12 @@ public class DeliveryService {
             return -1;
         }
 
-        order.setDeliveryPersonnelID(availablePersonnel.getID());
-        order.setStatus("out for delivery");
-        orderDAO.update(order);
+        // order.setDeliveryPersonnelID(availablePersonnel.getID());
+        // order.setStatus("out for delivery");
+        // orderDAO.update(order);
 
-        availablePersonnel.setStatus("busy");
-        deliveryPersonnelDAO.update(availablePersonnel);
+        // availablePersonnel.setStatus("busy");
+        // deliveryPersonnelDAO.update(availablePersonnel);
 
         
         List<Order> ordersForOneDelivery = new ArrayList<>();
@@ -66,7 +66,7 @@ public class DeliveryService {
         if(numberOfPizzas(order) <= 3){
             List<Order> orderCluster = orderDAO.findOrdersByPostalcodeAndTime(customer.getPostalcode(), LocalDateTime.now().minusMinutes(3));
             for(Order orderToAdd : orderCluster){
-                if (numberOfPizzas(orderToAdd) < 3) 
+                if (numberOfPizzas(orderToAdd) <= 3) 
                     ordersForOneDelivery.add(orderToAdd);
             }
         }

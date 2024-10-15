@@ -46,6 +46,8 @@ public class OrderService {
     private DrinkAndDesertDAO drinkAndDesertDAO;
     private IngredientDAO ingredientDAO;
 
+    StringBuilder discountMessage = new StringBuilder("Discounts Applied:\n");
+
     public OrderService(Connection conn) {
         this.conn = conn;
         this.orderDAO = new OrderDAOImpl(conn);
@@ -89,6 +91,7 @@ public class OrderService {
             price -= theLowestDrinkAndDesertPrice(drinksAndDesserts);
             System.out.println("Birthday discount applied");
             System.out.println("New price: " + price);
+            discountMessage.append("- Free pizza and drink for birthday\n");
             
         }
 
@@ -106,6 +109,7 @@ public class OrderService {
                 double percentage =  discountCode.getPercentage() / 100;
                 price *= (1 - percentage);
                 System.out.println("Discount code applied.");
+                discountMessage.append(String.format("- %.2f%% discount from code: %s\n", percentage * 100, discountCodeID));
                 System.out.println("New price: " + price);
             }
         }
@@ -116,6 +120,7 @@ public class OrderService {
         if(pizzaCount >= 10){
             price *= 0.9;
             System.out.print("-10% dicount applied.");
+            discountMessage.append("- 10% discount for ordering 10 pizzas\n");
             System.out.println("New price: " + price);
             customer.setPizzaCount(pizzaCount-10);
             System.out.println("Current pizza count: " + customer.getPizzaCount());
@@ -281,38 +286,7 @@ public class OrderService {
     }
 
     public String getAppliedDiscounts(int customerID, List<OrderPizza> pizzas, List<OrderDrinkAndDesert> drinksAndDesserts, String discountCodeID) throws SQLException {
-        StringBuilder discountMessage = new StringBuilder("Discounts Applied:\n");
-        boolean hasDiscount = false;
-
-        // Free pizza and drink on birthday
-        if (isBirthday(customerID)) {
-            hasDiscount = true;
-            discountMessage.append("- Free pizza and drink for birthday\n");
-        }
-
-        // 10% discount if 10 pizzas ordered
-        if (customerDAO.findByID(customerID).getPizzaCount() % 10 == 0) {
-            hasDiscount = true;
-            discountMessage.append("- 10% discount for ordering 10 pizzas\n");
-        }
-
-        // Check for discount code
-        // if (!discountCodeID.isEmpty()) {
-        //     DiscountCode discountCode = discountCodeDAO.findByID(discountCodeID);
-        //     if (discountCode != null && !discountCode.isUsed()) {
-        //         hasDiscount = true;
-        //         discountMessage.append(String.format("- %.2f%% discount from code: %s\n", discountCode.getPercentage() * 100, discountCodeID));
-        //     } else if (discountCode == null) {
-        //         discountMessage.append("- Invalid discount code\n");
-        //     } else {
-        //         discountMessage.append("- Discount code has already been used\n");
-        //     }
-        // }
-
-        if (!hasDiscount) {
-            return "No discounts applied.";
-        }
-
+        
         return discountMessage.toString();
     }
 

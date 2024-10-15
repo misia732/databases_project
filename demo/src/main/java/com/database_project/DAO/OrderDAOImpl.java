@@ -221,7 +221,7 @@ public class OrderDAOImpl implements OrderDAO {
         List<Order> orders = new ArrayList<>();
         String query = "SELECT * FROM `order` "
                  + "JOIN customer ON order.customerID = customer.ID "
-                 + "WHERE customer.postalCode = ? AND order.placementTime >= ? AND order.status = 'being prepared'";
+                 + "WHERE customer.postalCode = ? AND order.placementTime >= ?";
         try(PreparedStatement stmt = conn.prepareStatement(query)){
             stmt.setString(1, postalCode);
             stmt.setTimestamp(2, Timestamp.valueOf(timeWindow));

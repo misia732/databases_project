@@ -6,10 +6,14 @@ import java.sql.SQLException;
 
 import com.database_project.DAO.CustomerDAO;
 import com.database_project.DAO.CustomerDAOImpl;
+import com.database_project.DAO.OrderDAO;
+import com.database_project.DAO.OrderDAOImpl;
 import com.database_project.config.DatabaseConfig;
 import com.database_project.entity.Customer;
-import com.database_project.entity.DeliveryPersonnel;
+import com.database_project.entity.*;
 import com.database_project.entity.Ingredient;
+import com.database_project.service.DeliveryService;
+import com.database_project.service.OrderService;
 
 
 public class dbcTest{
@@ -116,20 +120,18 @@ public class dbcTest{
         */
 
         try (Connection conn = DatabaseConfig.getConnection()) {
-            CustomerDAO customerDAO = new CustomerDAOImpl(conn);
-            Customer c = customerDAO.findByEmail("discountCode");
-            c.setAddress("Oak Street 7");
-            // c.setPizzaCount(0);
-            customerDAO.update(c);
-            // OrderService orderService = new OrderService(conn);
-            // orderService.cancelOrder(17);
-            // orderService.cancelOrder(18);
-            // int id = orderService.initializeNewOrder(2);
-            // List<OrderPizza> orderPizza = new ArrayList<>();
-            // orderPizza.add(new OrderPizza(id, 3, 2));
-            // List<OrderDrinkAndDesert> orderdd = new ArrayList<>();
-            // orderdd.add(new OrderDrinkAndDesert(id,1,1));
-            // double price = orderService.placeOrder(id, orderPizza, orderdd, "");
+            DeliveryService deliveryService = new DeliveryService(conn);
+            OrderService orderService = new OrderService(conn);
+            OrderDAO orderDAO = new OrderDAOImpl(conn);
+            Order order1 = orderDAO.findByID(32);
+            Order order2 = orderDAO.findByID(33);
+            // order2.setDeliveryPersonnelID(null);
+            // orderDAO.update(order2);
+            // orderService.changeStatus(32,"waiting for delivery");
+            // orderService.changeStatus(33,"waiting for delivery");
+
+            deliveryService.assignDeliveryPersonnel(order2);
+
         } catch (SQLException e) {
             System.out.println("SQLException: " + e.getMessage());
             System.out.println("SQLState: " + e.getSQLState());
