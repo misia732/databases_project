@@ -66,7 +66,7 @@ public class OrderService {
         }
         Order order = new Order(customerID, null, null, null, null);
         int id = orderDAO.insert(order);
-        System.out.println("Order initialized: " + id);
+        System.out.println("Order initialized with orderID=" + id);
         return id;
     }
 
@@ -75,20 +75,20 @@ public class OrderService {
         int customerID = order.getCustomerID();
         Customer customer = customerDAO.findByID(customerID);
         if (pizzas == null || pizzas.isEmpty()) {
-            System.out.println("An order must include at least one pizza.");
+            System.out.println("Ordered not placed. An order must include at least one pizza.");
             return -1;
         }
 
         double price = pizzasPrice(pizzas) + drinkAndDesertPrice(drinksAndDesserts);
         
+        System.out.println("Full price: " + price);
+
         // free pizza and drink on birthday
         if(isBirthday(customerID)){
-            System.out.println(price);
             price -= theLowestPizzaPrice(pizzas);
-            System.out.println(price);
             price -= theLowestDrinkAndDesertPrice(drinksAndDesserts);
-            System.out.println(price);
             System.out.println("Birthday discount applied");
+            System.out.println("New price: " + price);
             
         }
 
@@ -97,25 +97,27 @@ public class OrderService {
         if(!discountCodeID.isEmpty()){
             DiscountCode discountCode = discountCodeDAO.findByID(discountCodeID);
             if(discountCode == null){
-                System.out.println("Discount code does not exist.");
+                System.out.println("Discount code " + discountCodeID +  " does not exist.");
             }
             else if (discountCode.isUsed()){
-                System.out.println("Discount code is used.");
+                System.out.println("Discount code " + discountCodeID +  " is used.");
             }
             else{
                 price *= (1 - discountCode.getPercentage());
+                System.out.println("Discount code applied.");
+                System.out.println("New price: " + price);
             }
         }
 
         // 10% dicount if 10 pizzas ordered
         int pizzaCount = customer.getPizzaCount();
-        System.out.println("pizza count = " + pizzaCount);
+        System.out.println("Current pizza count: " + pizzaCount);
         if(pizzaCount >= 10){
-            System.out.println("");
-            System.out.print("-10% dicount: " + price + " is now ");
             price *= 0.9;
-            System.out.println(price);
+            System.out.print("-10% dicount applied.");
+            System.out.println("New price: " + price);
             customer.setPizzaCount(pizzaCount-10);
+            System.out.println("Current pizza count: " + customer.getPizzaCount());
         }
 
         // number of ordered pizzas
@@ -123,7 +125,7 @@ public class OrderService {
         int currentPizzaCount = customer.getPizzaCount();
         int newPizzaCount = currentPizzaCount + n;
         System.out.println("Old pizza count : " + currentPizzaCount);
-        System.out.println("number of pizzas ordered: " + n);
+        System.out.println("Number of pizzas ordered: " + n);
         System.out.println("New pizza count: " + newPizzaCount);
         customer.setPizzaCount(newPizzaCount);
         customerDAO.update(customer);
@@ -152,8 +154,9 @@ public class OrderService {
             int pizzaID = orderPizza.getPizzaID();
             int quantity = orderPizza.getQuantity();
             double pizzaPrice = calculatePizzaPrice(pizzaDAO.findByID(pizzaID)) * quantity;
-            price =+ pizzaPrice;
+            price += pizzaPrice;
         }
+        System.out.println("Pizzas price: " + price);
         return price;
     }
 
@@ -168,7 +171,6 @@ public class OrderService {
             double price = calculatePizzaPrice(pizza);
             if(price < min) min = price;
         }
-        System.out.println("min pizza price: " + min);
         return min;
     }
 
@@ -180,9 +182,12 @@ public class OrderService {
             double iprice = ingredient.getPrice();
             price += iprice;
         }
+        System.out.println("Ingredients price: " + price);
         price *= 1.4;
         price *= 1.09;
-        return Math.round(price * 100.0) / 100.0;
+        price = Math.round(price * 100.0) / 100.0;
+        System.out.println("Price with vat and profit: " + price);
+        return price;
     }
 
     public double drinkAndDesertPrice(List<OrderDrinkAndDesert> orderDrinksAndDeserts) throws SQLException {
@@ -211,7 +216,6 @@ public class OrderService {
     }
 
     private double calculateDrinkAndDesertPrice(DrinkAndDesert drinkAndDesert){
-        System.out.println(drinkAndDesert.getPrice());
         return drinkAndDesert.getPrice();
     }
 
@@ -246,7 +250,7 @@ public class OrderService {
     public boolean cancelOrder(int orderId) throws SQLException {
         Order order = orderDAO.findByID(orderId);
         if (order == null) {
-            System.out.println("Order not found.");
+            System.out.println("Order for cancelation not found.");
             return false;
         }
         

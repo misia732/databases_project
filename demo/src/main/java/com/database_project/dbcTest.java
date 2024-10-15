@@ -8,8 +8,6 @@ import java.util.List;
 
 import com.database_project.DAO.CustomerDAO;
 import com.database_project.DAO.CustomerDAOImpl;
-import com.database_project.DAO.DeliveryPersonnelDAO;
-import com.database_project.DAO.DeliveryPersonnelDAOImpl;
 import com.database_project.config.DatabaseConfig;
 import com.database_project.entity.Customer;
 import com.database_project.entity.DeliveryPersonnel;
@@ -51,11 +49,11 @@ public class dbcTest{
             new Customer("Paul", "Davis", "Male", Date.valueOf("1990-03-15"), "+48987654324", "paul.davis@example.com", "i2heuibd", "Pine Street 8", "6229GV", "Maastricht", 7),
             new Customer("Sara", "Wilson", "Female", Date.valueOf("1998-07-22"), "+48123476543", "sara.wilson@example.com", "j23ueu", "Maple Street 9", "6229GV", "Maastricht", 8),
             new Customer("Mark", "Moore", "Male", Date.valueOf("1985-05-17"), "+48987654325", "mark.moore@example.com", "ih38b", "Birch Street 10", "6229GV", "Maastricht", 9),
-            new Customer("", "", "", Date.valueOf("1989-05-17"), "", "test", "1", "", "", "", 0)
         };
         
 
         // inserting customers
+        /*
         try (Connection conn = DatabaseConfig.getConnection()){
             CustomerDAO customerDAO = new CustomerDAOImpl(conn);
             for (Customer customer : customers) {
@@ -66,7 +64,7 @@ public class dbcTest{
             System.out.println("SQLState: " + e.getSQLState());
             System.out.println("VendorError: " + e.getErrorCode());
         }
-
+        */
 
         // create delivery personel
         DeliveryPersonnel[] deliveryPersonnel = {
@@ -83,6 +81,7 @@ public class dbcTest{
         };
 
         // inserting delivery personel
+        /*
         try (Connection conn = DatabaseConfig.getConnection()) {
             DeliveryPersonnelDAO deliveryPersonnelDAO = new DeliveryPersonnelDAOImpl(conn);
             for (DeliveryPersonnel DeliveryPersonnel_ : deliveryPersonnel) {
@@ -93,6 +92,7 @@ public class dbcTest{
             System.out.println("SQLState: " + e.getSQLState());
             System.out.println("VendorError: " + e.getErrorCode());
         }
+        */
 
         // creating ingredients
         Ingredient[] ingredients = {
@@ -110,110 +110,39 @@ public class dbcTest{
 
         };
 
-        // inserting ingredients
-        // try (Connection conn = DatabaseConfig.getConnection()) {
-        //     IngredientDAO ingredientDAO = new IngredientDAOImpl(conn);
-        //     for (Ingredient ingredient : ingredients) {
-        //         ingredientDAO.insert(ingredient);
-        //     }
-        // } catch (SQLException e) {
-        //     System.out.println("SQLException: " + e.getMessage());
-        //     System.out.println("SQLState: " + e.getSQLState());
-        //     System.out.println("VendorError: " + e.getErrorCode());
-        // }
-        
-        // try(Connection conn = DatabaseConfig.getConnection())
-        // {
-        //     CustomerDAO customerDAO = new CustomerDAOImpl(conn);
-        //     CustomerService customerService = new CustomerService(conn);
-        //     OrderDAO orderDAO = new OrderDAOImpl(conn);
-        //     OrderService orderService = new OrderService(conn);
-        //     int customerID = 13;
-        //     int orderID = orderService.initializeNewOrder(customerID);
-        //     //int orderID = 1;
-        //     Order order = orderDAO.findByID(orderID);
-        //     System.out.println(order.toString());
-        //     OrderPizza orderPizza = new OrderPizza(orderID, 1, 2);
-        //     List<OrderPizza> pizzas = new ArrayList<>();
-        //     pizzas.add(orderPizza);
-        //     OrderDrinkAndDesert drink = new OrderDrinkAndDesert(orderID, 6, 1);
-        //     List<OrderDrinkAndDesert> drinksAndDeserts = new ArrayList<>();
-        //     drinksAndDeserts.add(drink);
-        //     orderService.placeOrder(orderID, pizzas, drinksAndDeserts, "");
-        //     LocalDateTime now = LocalDateTime.now();
-        //     order.setPlacementTime(now);
-        //     orderDAO.update(order);
-        //     orderService.cancelOrder(orderID);
-        // }
-        // catch (SQLException e) {
-        //         System.out.println("SQLException: " + e.getMessage());
-        //         System.out.println("SQLState: " + e.getSQLState());
-        //         System.out.println("VendorError: " + e.getErrorCode());
-        // };
-
-        // try(Connection conn = DatabaseConfig.getConnection())
-        // {
-        //     //CustomerDAO customerDAO = new CustomerDAOImpl(conn);
-        //     //CustomerService customerService = new CustomerService(conn);
-        //     OrderDAO orderDAO = new OrderDAOImpl(conn);
-        //     OrderService orderService = new OrderService(conn);
-        //     int customerID = 1;
-        //     int orderID = orderService.initializeNewOrder(customerID);
-        //     //int orderID = 1;
-        //     Order order = orderDAO.findByID(orderID);
-        //     System.out.println(order.toString());
-        //     OrderPizza orderPizza = new OrderPizza(orderID, 1, 2);
-        //     List<OrderPizza> pizzas = new ArrayList<>();
-        //     pizzas.add(orderPizza);
-        //     OrderDrinkAndDesert drink = new OrderDrinkAndDesert(orderID, 6, 1);
-        //     List<OrderDrinkAndDesert> drinksAndDeserts = new ArrayList<>();
-        //     drinksAndDeserts.add(drink);
-        //     orderService.placeOrder(orderID, pizzas, drinksAndDeserts, "");
-        //     LocalDateTime now = LocalDateTime.now();
-        //     order.setPlacementTime(now);
-        //     orderDAO.update(order);
-        //     //orderService.cancelOrder(orderID);
-        // }
-        // catch (SQLException e) {
-        //         System.out.println("SQLException: " + e.getMessage());
-        //         System.out.println("SQLState: " + e.getSQLState());
-        //         System.out.println("VendorError: " + e.getErrorCode());
-        // };
-
-        try(Connection conn = DatabaseConfig.getConnection())
-        {
-            // CustomerDAO customerDAO = new CustomerDAOImpl(conn);
-            // Customer c = customerDAO.findByID(2);
-            // c.setPizzaCount(0);
-            // customerDAO.update(c);
-            OrderService orderService = new OrderService(conn);
-            int id = orderService.initializeNewOrder(2);
-            List <OrderPizza> orderPizza = new ArrayList<>();
-            OrderPizza o = new com.database_project.entity.OrderPizza(id, 1, 9);
-            List<OrderDrinkAndDesert> d = new ArrayList<>();
-            orderPizza.add(o);
-            orderService.placeOrder(id, orderPizza, d, "");
+        //inserting ingredients
+        /*
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            IngredientDAO ingredientDAO = new IngredientDAOImpl(conn);
+            for (Ingredient ingredient : ingredients) {
+                ingredientDAO.insert(ingredient);
+            }
+        } catch (SQLException e) {
+            System.out.println("SQLException: " + e.getMessage());
+            System.out.println("SQLState: " + e.getSQLState());
+            System.out.println("VendorError: " + e.getErrorCode());
         }
-        catch (SQLException e) {
-                System.out.println("SQLException: " + e.getMessage());
-                System.out.println("SQLState: " + e.getSQLState());
-                System.out.println("VendorError: " + e.getErrorCode());
-        };
+        */
 
-        // try(Connection conn = DatabaseConfig.getConnection())
-        // {
-        //     OrderDAO orderDAO = new OrderDAOImpl(conn);
-        //     Order order = orderDAO.findByID(1);
-        //     DeliveryService deliveryService = new DeliveryService(conn);
-        //     deliveryService.assignDeliveryPersonnel(order);
-        // }
-        // catch (SQLException e) {
-        //         System.out.println("SQLException: " + e.getMessage());
-        //         System.out.println("SQLState: " + e.getSQLState());
-        //         System.out.println("VendorError: " + e.getErrorCode());
-        // };
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            CustomerDAO customerDAO = new CustomerDAOImpl(conn);
+            Customer c = customerDAO.findByID(2);
+            c.setPizzaCount(0);
+            customerDAO.update(c);
+            OrderService orderService = new OrderService(conn);
+            orderService.cancelOrder(17);
+            orderService.cancelOrder(18);
+            int id = orderService.initializeNewOrder(2);
+            List<OrderPizza> orderPizza = new ArrayList<>();
+            orderPizza.add(new OrderPizza(id, 3, 2));
+            List<OrderDrinkAndDesert> orderdd = new ArrayList<>();
+            orderdd.add(new OrderDrinkAndDesert(id,1,1));
+            double price = orderService.placeOrder(id, orderPizza, orderdd, "");
+        } catch (SQLException e) {
+            System.out.println("SQLException: " + e.getMessage());
+            System.out.println("SQLState: " + e.getSQLState());
+            System.out.println("VendorError: " + e.getErrorCode());
+        }
 
-
-    
     }
 }
