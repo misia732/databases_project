@@ -46,7 +46,6 @@ public class PizzaOrderingApp extends JFrame {
         orderedPizzas = new HashMap<>();
         orderedDessertAndDrink = new HashMap<>();
 
-        // Set up the frame
         setTitle("Pizza Ordering System");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -66,9 +65,9 @@ public class PizzaOrderingApp extends JFrame {
         // Pizza Menu Panel (Middle Section)
         JPanel pizzaMenuPanel = new JPanel();
         pizzaMenuPanel.setBackground(Color.GRAY);
-        pizzaMenuPanel.setLayout(new GridLayout(5, 1)); // Adjust layout to 5 rows for the drop-down lists
+        pizzaMenuPanel.setLayout(new GridLayout(5, 1)); 
 
-        // Create an ingredients map
+        // creating an ingredients map, this is only for GUI purposes, the actual logic is fetched from the database
 
         pizzaIngredients.put("Margherita", new String[]{
             "Pizza dough", "Tomato sauce", "Mozzarella cheese", "Oregano"
@@ -114,7 +113,7 @@ public class PizzaOrderingApp extends JFrame {
 
         // HashMap to store ingredients and their prices
 
-        // Add ingredients and their hypothetical prices
+        // this is only for displaying in the GUI, the actual ingredients are fetched from the database
         ingredientPrices.put("Pizza dough", 0.80);
         ingredientPrices.put("Tomato sauce", 0.50);
         ingredientPrices.put("Mozzarella cheese", 1.20);
@@ -138,7 +137,7 @@ public class PizzaOrderingApp extends JFrame {
         ingredientPrices.put("Truffle oil", 1.20);
 
 
-        // Calculate the price for each pizza
+        // calculating price for each pizza
         double pepperoniPrice = calculatePizzaPrice("Pepperoni");
         double meatLoversPrice = calculatePizzaPrice("Meat Lover's");
         double capricciosaPrice = calculatePizzaPrice("Capricciosa");
@@ -151,7 +150,7 @@ public class PizzaOrderingApp extends JFrame {
         double veganMargheritaPrice = calculatePizzaPrice("Vegan Margherita");
         
 
-        // Meat Pizzas Dropdown
+        // meat pizzas
         JComboBox<String> meatPizzasCombo = new JComboBox<>(new String[]{
                 "Pepperoni ($" + String.format("%.2f", pepperoniPrice) + ")",
                 "Meat Lover's ($" + String.format("%.2f", meatLoversPrice) + ")",
@@ -161,7 +160,7 @@ public class PizzaOrderingApp extends JFrame {
         pizzaMenuPanel.add(createDropdownPanel("Meat Pizzas", meatPizzasCombo));
 
 
-        // Vegetarian Pizzas Dropdown
+        // vegetarian pizzas
         JComboBox<String> vegetarianPizzasCombo = new JComboBox<>(new String[]{
                 "Margherita ($" + String.format("%.2f", margheritaPrice) + ")",
                 "Spinach & Feta ($" + String.format("%.2f", spinachFetaPrice) + ")",
@@ -169,7 +168,7 @@ public class PizzaOrderingApp extends JFrame {
         });
         pizzaMenuPanel.add(createDropdownPanel("Vegetarian Pizzas", vegetarianPizzasCombo));
 
-        // Vegan Pizzas Dropdown
+        // vegan pizzas
         JComboBox<String> veganPizzasCombo = new JComboBox<>(new String[]{
                 "Vegan Margherita ($" + String.format("%.2f", veganMargheritaPrice) + ")",
                 "Veggie Surpreme ($" + String.format("%.2f", veggiePrice) + ")",
@@ -177,7 +176,7 @@ public class PizzaOrderingApp extends JFrame {
         });
         pizzaMenuPanel.add(createDropdownPanel("Vegan Pizzas", veganPizzasCombo));
 
-        // Desserts Dropdown
+        // desserts
         JComboBox<String> dessertsCombo = new JComboBox<>(new String[]{
                 "Tiramisu ($6.0)",
                 "Chocolate Lava Cake ($7.0)",
@@ -185,7 +184,7 @@ public class PizzaOrderingApp extends JFrame {
         });
         pizzaMenuPanel.add(createDropdownPanel("Desserts", dessertsCombo));
 
-        // Drinks Dropdown
+        // drinks
         JComboBox<String> drinksCombo = new JComboBox<>(new String[]{
                 "Coca-Cola ($2.5)",
                 "Fresh Orange Juice ($3.0)",
@@ -204,22 +203,21 @@ public class PizzaOrderingApp extends JFrame {
 
         orderArea = new JTextArea();
         orderArea.setEditable(false);
-        orderArea.setLineWrap(true); // Allow line wrapping
-        orderArea.setWrapStyleWord(true); // Wrap on word boundaries
+        orderArea.setLineWrap(true); 
+        orderArea.setWrapStyleWord(true); 
 
         // Wrap JTextArea in JScrollPane
         JScrollPane scrollPane = new JScrollPane(orderArea);
-        scrollPane.setPreferredSize(new Dimension(400, 200)); // Adjust height as needed
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED); // Show scroll bar as needed
+        scrollPane.setPreferredSize(new Dimension(400, 200)); 
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED); 
 
         orderPanel.add(scrollPane, BorderLayout.CENTER);
 
         // Order Button
-        // Create discount code text field
+        // and discount code 
         JTextField discountCodeField = new JTextField(15);  // 15 columns wide
         discountCodeField.setToolTipText("Enter discount code");
 
-        // Create order button
         JButton orderButton = new JButton("ORDER");
         orderButton.addActionListener(e -> {
             if (orderedPizzas.isEmpty()) {
@@ -228,35 +226,31 @@ public class PizzaOrderingApp extends JFrame {
                         "Order Error",
                         JOptionPane.WARNING_MESSAGE);
             } else {
-                // Get the discount code entered by the user
+                // get the discount code entered by the user
                 discountCode = discountCodeField.getText().trim();
 
                 if (!discountCode.isEmpty()) {
-                    // You can pass the discount code to the order processing logic here
+                    
                     System.out.println("Discount code entered: " + discountCode);
                 }
 
-                // If there are pizzas in the order, show the order summary
+                // if there are pizzas in the order, show the order summary
                 showOrderSummary();
             }
         });
 
-        // Create a panel to hold the order button and the discount code field
+        
         JPanel buttonPanel = new JPanel();
-        buttonPanel.add(new JLabel("Enter discount code:"));  // Label for the text field
-        buttonPanel.add(discountCodeField);                   // Add the text field
-        buttonPanel.add(orderButton);                         // Add the order button
+        buttonPanel.add(new JLabel("Enter discount code:"));  
+        buttonPanel.add(discountCodeField);                   
+        buttonPanel.add(orderButton);                         
 
-        // Add the buttonPanel to the orderPanel
         orderPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        // Add the orderPanel to the main layout
-        add(orderPanel, BorderLayout.SOUTH); // This should be the only addition of orderPanel
+        add(orderPanel, BorderLayout.SOUTH); 
         setVisible(true);
 
-
-        // Add the orderPanel to the main layout
-        add(orderPanel, BorderLayout.SOUTH); // This should be the only addition of orderPanel
+        add(orderPanel, BorderLayout.SOUTH); 
         setVisible(true);
 
     }
@@ -264,17 +258,17 @@ public class PizzaOrderingApp extends JFrame {
     private JPanel createDropdownPanel(String label, JComboBox<String> comboBox) {
         JPanel panel = new JPanel(new BorderLayout());
         JLabel categoryLabel = new JLabel(label);
-        categoryLabel.setFont(new Font("Times New Roman", Font.BOLD, 16)); // Change font and size
+        categoryLabel.setFont(new Font("Times New Roman", Font.BOLD, 16)); 
         panel.add(categoryLabel, BorderLayout.WEST);
 
-        // Create a panel for the combo box
+
         JPanel comboPanel = new JPanel(new BorderLayout());
-        comboPanel.add(comboBox, BorderLayout.CENTER); // Add combo box to the center
-        // Create a panel for buttons aligned to the right
+        comboPanel.add(comboBox, BorderLayout.CENTER); 
+
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.setVisible(false); // Initially hidden
 
-        // Add buttons
+        // adding and substracting buttons
         JButton addButton = new JButton("+");
         JButton removeButton = new JButton("-");
         JButton showIngredientsButton = new JButton("Show Ingredients");
@@ -282,16 +276,15 @@ public class PizzaOrderingApp extends JFrame {
         buttonPanel.add(addButton);
         buttonPanel.add(removeButton);
         buttonPanel.add(showIngredientsButton);
-
-        // Add the button panel to the combo panel on the right
+   
         comboPanel.add(buttonPanel, BorderLayout.EAST);
         panel.add(comboPanel, BorderLayout.CENTER);
 
-        // ActionListener to display buttons when a pizza is selected
+       
         comboBox.addActionListener(e -> {
             String selectedPizza = (String) comboBox.getSelectedItem();
             if (selectedPizza != null) {
-                buttonPanel.setVisible(true); // Show the buttons when an item is selected
+                buttonPanel.setVisible(true); 
             }
         });
 
@@ -299,7 +292,7 @@ public class PizzaOrderingApp extends JFrame {
         addButton.addActionListener(e -> {
             String selectedPizza = (String) comboBox.getSelectedItem();
             if (selectedPizza != null) {
-                String pizzaName = selectedPizza.split(" \\(")[0];  // Extract pizza name without price
+                String pizzaName = selectedPizza.split(" \\(")[0];  
                 double pizzaPrice = calculatePizzaPrice(pizzaName);
                 new PizzaOrderAction(pizzaName, pizzaPrice, true).actionPerformed(e);
             }
@@ -308,7 +301,7 @@ public class PizzaOrderingApp extends JFrame {
         removeButton.addActionListener(e -> {
             String selectedPizza = (String) comboBox.getSelectedItem();
             if (selectedPizza != null) {
-                String pizzaName = selectedPizza.split(" \\(")[0];  // Extract pizza name without price
+                String pizzaName = selectedPizza.split(" \\(")[0];  
                 double pizzaPrice = calculatePizzaPrice(pizzaName);
                 new PizzaOrderAction(pizzaName, pizzaPrice, false).actionPerformed(e);
             }
@@ -317,7 +310,7 @@ public class PizzaOrderingApp extends JFrame {
         showIngredientsButton.addActionListener(e -> {
             String selectedPizza = (String) comboBox.getSelectedItem();
             if (selectedPizza != null) {
-                String pizzaName = selectedPizza.split(" \\(")[0];  // Extract pizza name without price
+                String pizzaName = selectedPizza.split(" \\(")[0];  
                 new IngredientsAction(pizzaName).actionPerformed(e);
             }
         });
@@ -340,13 +333,13 @@ public class PizzaOrderingApp extends JFrame {
         public void actionPerformed(ActionEvent e) {
             int quantity;
     
-            // Check if the item is a pizza, drink, or dessert
+            // check if the item is a pizza, drink, or dessert
             if (pizzaIngredients.containsKey(itemName)) {
-                // It's a pizza
+                // pizza
                 quantity = orderedPizzas.getOrDefault(itemName, 0);
                 handleItemOrder(orderedPizzas, itemName, itemPrice, quantity);
             } else if (calculateDessertPrice(itemName) > 0) {
-                // It's a dessert or a drink
+                // dessert or drink
                 quantity = orderedDessertAndDrink.getOrDefault(itemName, 0);
                 handleItemOrder(orderedDessertAndDrink, itemName, calculateDessertPrice(itemName), quantity);
             } 
@@ -354,7 +347,7 @@ public class PizzaOrderingApp extends JFrame {
     
         private void handleItemOrder(Map<String, Integer> orderMap, String itemName, double itemPrice, int quantity) {
             if (isAdd) {
-                // Add the item to the order
+                // add item to the order
                 quantity++;
                 System.out.println(itemName);
                 System.out.println(itemPrice);
@@ -362,7 +355,7 @@ public class PizzaOrderingApp extends JFrame {
                 totalPrice += itemPrice;
                 orderArea.append("Added: " + itemName + " (x" + quantity + ") - $" + (itemPrice * quantity) + "\n");
             } else if (quantity > 0) {
-                // Remove the item from the order
+                //remove from the order
                 quantity--;
                 if (quantity == 0) {
                     orderMap.remove(itemName);
@@ -373,18 +366,18 @@ public class PizzaOrderingApp extends JFrame {
                 orderArea.append("Removed: " + itemName + " (x" + quantity + ") - $" + (itemPrice * quantity) + "\n");
             }
     
-            // Update total price
+            // update total price
             orderArea.append("Total: $" + String.format("%.2f", totalPrice) + "\n\n");
         }
     }
     
     public void updateOrderSummary() {
 
-        // Clear the orderArea before updating
+        // clearing the orderArea before updating
         orderArea.setText("");
         
     
-        // Display all pizzas in the current order with quantities
+        // display all pizzas in the current order with quantities
         orderArea.append("Pizzas:\n");
         for (Map.Entry<String, Integer> entry : orderedPizzas.entrySet()) {
             String name = entry.getKey();
@@ -393,7 +386,7 @@ public class PizzaOrderingApp extends JFrame {
             orderArea.append(name + " (x" + quantity + ") - $" + String.format("%.2f", totalItemPrice) + "\n");
         }
     
-        // Display all drinks and desserts in the current order with quantities
+        // display all drinks and desserts in the current order with quantities
         orderArea.append("\nDrinks and desserts:\n");
         for (Map.Entry<String, Integer> entry : orderedDessertAndDrink.entrySet()) {
             String name = entry.getKey();
@@ -403,7 +396,7 @@ public class PizzaOrderingApp extends JFrame {
             
         }
     
-        // Update total price
+        // update total price
         orderArea.append("\nTotal: $" + String.format("%.2f", totalPrice) + "\n\n");
     }
     
@@ -416,17 +409,17 @@ public class PizzaOrderingApp extends JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            // Prepare the cost breakdown
+            // cost breakdown
             StringBuilder ingredientList = new StringBuilder("Ingredients for " + pizzaName + ":\n");
 
             double ingredientCost = 0.0;
 
-            // Check if the pizza name exists in the pizzaIngredients map
+            // again, this is only for GUI purposes, the actual pizza prices are calculating from the database
             if (pizzaIngredients.containsKey(pizzaName)) {
                 // Get the ingredients for the pizza
                 String[] ingredients = pizzaIngredients.get(pizzaName);
 
-                // Loop through ingredients and add their prices
+    
                 for (String ingredient : ingredients) {
                     if (ingredientPrices.containsKey(ingredient)) {
                         double price = ingredientPrices.get(ingredient);
@@ -437,7 +430,7 @@ public class PizzaOrderingApp extends JFrame {
                     }
                 }
 
-                // Calculate profit margin and VAT
+                // profit margin and VAT
                 double profitMargin = 0.40 * ingredientCost;
                 profitMargin = Math.round(profitMargin * 100.0) / 100.0;
                 double priceWithProfit = ingredientCost + profitMargin;
@@ -457,7 +450,6 @@ public class PizzaOrderingApp extends JFrame {
                 ingredientList.append("Pizza not found.");
             }
 
-            // Display ingredients and price breakdown in a dialog
             JOptionPane.showMessageDialog(PizzaOrderingApp.this, ingredientList.toString(), "Ingredients & Price Breakdown", JOptionPane.INFORMATION_MESSAGE);
         }
     }
@@ -467,12 +459,10 @@ public class PizzaOrderingApp extends JFrame {
         summaryFrame.setSize(800, 600);
         summaryFrame.setLayout(new GridLayout(0, 1));
     
-        // Summary Label
         JLabel summaryLabel = new JLabel("Summary of Your Order", JLabel.CENTER);
         summaryLabel.setFont(new Font("Times New Roman", Font.BOLD, 18));
         summaryFrame.add(summaryLabel);
     
-        // Order Details
         JTextArea summaryArea = new JTextArea();
         summaryArea.setEditable(false);
         updateOrderSummary();  // Update the order summary
@@ -482,9 +472,9 @@ public class PizzaOrderingApp extends JFrame {
         // "Pay and Order" Button
         JButton payButton = new JButton("Pay and Order");
         payButton.addActionListener(e -> {
-            // Example of how to handle inserting the order into the database
+            
             try (Connection conn = DatabaseConfig.getConnection()) {
-                // Assuming you have a 'loggedInCustomer' stored after the login
+                
                 if (FirstScreen.loggedInCustomer != null) {
                     System.out.println("Customer exists in a database");
     
@@ -496,14 +486,14 @@ public class PizzaOrderingApp extends JFrame {
     
                     List<OrderPizza> orderPizzas = new ArrayList<>();
     
-                    // For each pizza in the order, insert the corresponding OrderPizza record
+                    // for each pizza in the order, insert the corresponding OrderPizza record
                     for (Map.Entry<String, Integer> entry : orderedPizzas.entrySet()) {
                         String pizzaName = entry.getKey();
                         int quantity = entry.getValue();
     
                         PizzaDAOImpl pizzaDAO = new PizzaDAOImpl(conn);
                         Pizza pizza = pizzaDAO.findByName(pizzaName);
-                        int pizzaID = pizza.getID(); // Assuming you have a Pizza object named pizza
+                        int pizzaID = pizza.getID(); 
     
                         OrderPizza orderPizza = new OrderPizza(
                             orderID,            
@@ -517,7 +507,7 @@ public class PizzaOrderingApp extends JFrame {
     
                     List<OrderDrinkAndDesert> orderDrinks = new ArrayList<>();
     
-                    // Inserting Ordered Drinks
+                    // inserting order drinks
                     for (Map.Entry<String, Integer> entry : orderedDessertAndDrink.entrySet()) {
                         String drinkName = entry.getKey();
                         int quantity = entry.getValue();
@@ -538,17 +528,15 @@ public class PizzaOrderingApp extends JFrame {
     
                     
 
-                    // Get the total price from the placeOrder method
+                    // get the total price from the placeOrder method
                     double totalPrice = orderService.placeOrder(orderID, orderPizzas, orderDrinks, discountCode);
                     String discounts = orderService.getAppliedDiscounts(FirstScreen.loggedInCustomer.getID(), orderPizzas, orderDrinks, discountCode);
 
-                    // Add the total price and discounts to the order summary
+                    // add the total price and discounts to the order summary
                     orderArea.append(discounts);  // Show applied discounts
                     orderArea.append("\nTotal: $" + String.format("%.2f", totalPrice) + "\n\n");
                     summaryArea.setText(orderArea.getText());  // Update the displayed summary area
 
-    
-                    // Close the summary frame
                     summaryFrame.dispose();
                 } else {
                     JOptionPane.showMessageDialog(summaryFrame, "No customer is logged in!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -558,43 +546,39 @@ public class PizzaOrderingApp extends JFrame {
                 JOptionPane.showMessageDialog(summaryFrame, "Error: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             }
     
-            // Implement payment processing logic here
+
             JOptionPane.showMessageDialog(summaryFrame, 
                 "Payment processed! Your order is being prepared. You have 5 minutes to cancel the order.", 
                 "Order Confirmation", JOptionPane.INFORMATION_MESSAGE);
         });
     
-        summaryFrame.add(payButton); // Add the button to the summary frame
-        summaryFrame.setVisible(true); // Show the frame
+        summaryFrame.add(payButton); 
+        summaryFrame.setVisible(true); 
     
     }
 
     public static double calculatePizzaPrice(String pizzaName) {
         double ingredientCost = 0.0;
 
-        // Check if the pizza name exists in the pizzaIngredients map
+        
         if (pizzaIngredients.containsKey(pizzaName)) {
-            // System.out.println("Cost breakdown for your " + pizzaName + " pizza:");
-
-            // Get the ingredients for the pizza
+            
             String[] ingredients = pizzaIngredients.get(pizzaName);
 
-            // Loop through ingredients and add their prices
             for (String ingredient : ingredients) {
                 if (ingredientPrices.containsKey(ingredient)) {
                     double price = ingredientPrices.get(ingredient);
                     ingredientCost += price;
-                    // System.out.println(ingredient + ": $" + price);
+                    
                 } else {
                     System.out.println(ingredient + ": Not available in the price list.");
                 }
             }
 
-            // Add 40% profit margin
             double profitMargin = 0.40 * ingredientCost;
             double priceWithProfit = ingredientCost + profitMargin;
 
-            // Add 9% VAT
+
             double vat = 0.09 * priceWithProfit;
             double finalPrice = priceWithProfit + vat;
 

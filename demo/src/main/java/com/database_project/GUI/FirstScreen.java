@@ -17,27 +17,24 @@ public class FirstScreen {
     public static Customer loggedInCustomer;
 
     public FirstScreen() {
-        // Initialize the main frame
+        
         summaryFrame = new JFrame("Welcome");
         summaryFrame.setSize(400, 200);
         summaryFrame.setLayout(new FlowLayout());
 
-        // Create and add the "Sign In" button
         JButton signInButton = new JButton("Sign up");
         signInButton.addActionListener(e -> displaySignInWindow());
         summaryFrame.add(signInButton);
 
-        // Create and add the "Log In" button
         JButton logInButton = new JButton("Log in");
         logInButton.addActionListener(e -> displayLogInWindow());
         summaryFrame.add(logInButton);
 
-        // Set frame properties
         summaryFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         summaryFrame.setVisible(true);
     }
 
-    // Method to display the Sign-In window
+    
     private void displaySignInWindow() {
         JFrame signInFrame = new JFrame("Sign Up");
         signInFrame.setSize(800, 600);
@@ -85,48 +82,48 @@ public class FirstScreen {
         JPasswordField passwordField = new JPasswordField();
         signInFrame.add(passwordField);
     
-        // Submit Button for Sign-In form
+        // Button for Sign-In form
         JButton submitButton = new JButton("Submit");
         submitButton.addActionListener(submitEvent -> {
-            // Collect form data
+            
             String firstName = firstNameField.getText();
             String lastName = lastNameField.getText();
             String gender = (String) genderComboBox.getSelectedItem();
-            String birthDateString = birthDateField.getText(); // Get the birth date string
+            String birthDateString = birthDateField.getText(); 
             String phoneNumber = phoneField.getText();
             String email = emailField.getText();
             String address = addressField.getText();
             String postalCode = postalCodeField.getText();
             String city = cityField.getText();
-            String password = new String(passwordField.getPassword()); // Get password
-            int pizzaCount = 0;  // Initialize with 0 for new customers
+            String password = new String(passwordField.getPassword()); 
+            int pizzaCount = 0;  
 
-            // Validate and convert the birth date
+            
             java.sql.Date sqlBirthDate = null;
             try {
-                sqlBirthDate = java.sql.Date.valueOf(birthDateString); // Try converting to SQL Date
+                sqlBirthDate = java.sql.Date.valueOf(birthDateString); 
             } catch (IllegalArgumentException e) {
             JOptionPane.showMessageDialog(signInFrame, "Invalid date format. Please use YYYY-MM-DD.", "Input Error", JOptionPane.ERROR_MESSAGE);
-                return; // Exit the method if date is invalid
+                return; 
             }
 
-            // Create a new Customer object using the parameterized constructor
+            
             Customer newCustomer = new Customer(firstName, lastName, gender, sqlBirthDate, phoneNumber, email, password, address, postalCode, city, pizzaCount);
 
-            // Insert the customer into the database
+        
             try (Connection conn = DatabaseConfig.getConnection()) {
             CustomerDAOImpl customerDAO = new CustomerDAOImpl(conn);
-            customerDAO.insert(newCustomer); // Insert the new customer
+            customerDAO.insert(newCustomer); 
             loggedInCustomer = newCustomer;
 
             } catch (SQLException e) {
-            e.printStackTrace(); // Handle exception
+            e.printStackTrace(); 
             JOptionPane.showMessageDialog(signInFrame, "Error: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             }
 
-            // Open the PizzaOrderingApp
+        
             new PizzaOrderingApp();
-            signInFrame.dispose(); // Close the sign-in frame
+            signInFrame.dispose();
                     });
                     signInFrame.add(submitButton);
                 
@@ -134,11 +131,11 @@ public class FirstScreen {
                 }
     
 
-    // Method to display the Log-In window
+ 
     private void displayLogInWindow() {
         JFrame logInFrame = new JFrame("Log In");
         logInFrame.setSize(800, 200);
-        logInFrame.setLayout(new GridLayout(0, 2));  // Dynamic layout
+        logInFrame.setLayout(new GridLayout(0, 2));  
 
         logInFrame.add(new JLabel("Email address:"));
         JTextField emailField = new JTextField();
@@ -148,14 +145,13 @@ public class FirstScreen {
         JPasswordField passwordField = new JPasswordField();
         logInFrame.add(passwordField);
 
-        // Submit Button for Log-In form
         JButton submitButton = new JButton("Submit");
         submitButton.addActionListener(submitEvent -> {
-            // Logic to check email and password
+            
             try (Connection conn = DatabaseConfig.getConnection()) {
                 CustomerDAOImpl customerDAO = new CustomerDAOImpl(conn);
                 String email = emailField.getText();
-                String password = new String(passwordField.getPassword()); // Get password
+                String password = new String(passwordField.getPassword()); 
         
                 // Check if the email is "admin"
                 if (email.equals("admin")) {
@@ -183,16 +179,16 @@ public class FirstScreen {
                             // Open Order Tracking window
                             new OrderTracking(customer.getID(), conn); // Corrected line to instantiate OrderTrackingWindow
                         } else {
-                            new PizzaOrderingApp(); // Open the PizzaOrderingApp
+                            new PizzaOrderingApp(); 
                         }
-                        logInFrame.dispose(); // Close the login frame
+                        logInFrame.dispose(); 
                     } else {
                         // Invalid customer credentials
                         JOptionPane.showMessageDialog(logInFrame, "Invalid email or password", "Login Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             } catch (SQLException e) {
-                e.printStackTrace(); // Handle exception
+                e.printStackTrace(); 
                 JOptionPane.showMessageDialog(logInFrame, "Error: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             }
         });
@@ -205,7 +201,7 @@ public class FirstScreen {
     }
 
     public static void main(String[] args) {
-        // Run the application
+       
         new FirstScreen();
     }
 }
